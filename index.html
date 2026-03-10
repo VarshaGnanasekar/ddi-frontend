@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DDI Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{
+  --ink:#0A0A0F;--paper:#F4F1EB;--cream:#EDE8DF;
+  --violet:#5B3FE8;--violet-lt:#8B72FF;--violet-dim:rgba(91,63,232,.12);
+  --teal:#00C9A7;--rose:#FF4D6D;--amber:#F59E0B;
+  --safe:#00C9A7;--warn:#F59E0B;--danger:#FF4D6D;
+  --mono:'Space Mono',monospace;--sans:'Syne',sans-serif;--serif:'Instrument Serif',serif;
+  --r:14px;--shadow:0 4px 32px rgba(10,10,15,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+
+/* ── NOISE TEXTURE ── */
+body::before{content:'';position:fixed;inset:0;opacity:.025;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(18px);background:rgba(244,241,235,.88);
+  border-bottom:1px solid rgba(91,63,232,.15);padding:0 2rem}
+.nav-inner{max-width:1280px;margin:0 auto;height:60px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{font-family:var(--serif);font-style:italic;font-size:1.3rem;color:var(--violet);letter-spacing:-.5px}
+.nav-links{display:flex;gap:.25rem}
+.nav-btn{background:none;border:none;font-family:var(--mono);font-size:.65rem;letter-spacing:2px;
+  text-transform:uppercase;color:#888;padding:.45rem .9rem;border-radius:8px;cursor:pointer;transition:all .15s}
+.nav-btn:hover,.nav-btn.active{background:var(--violet-dim);color:var(--violet)}
+.nav-btn.active{font-weight:700}
+.nav-auth{display:flex;gap:.5rem;align-items:center}
+.nav-user{font-family:var(--mono);font-size:.65rem;color:var(--violet);letter-spacing:1px}
+
+/* ── PAGES ── */
+.page{display:none;max-width:1280px;margin:0 auto;padding:2rem;animation:fadeUp .3s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HERO ── */
+.hero{border:1px solid rgba(91,63,232,.2);border-radius:20px;padding:2.5rem;margin-bottom:2rem;
+  background:linear-gradient(135deg,rgba(91,63,232,.06) 0%,rgba(0,201,167,.04) 100%);
+  position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(91,63,232,.12),transparent 70%);
+  top:-150px;right:-100px;pointer-events:none}
+.hero-eyebrow{font-family:var(--mono);font-size:.6rem;letter-spacing:3px;color:var(--violet);
+  text-transform:uppercase;margin-bottom:.75rem}
+.hero-title{font-family:var(--serif);font-style:italic;font-size:2.4rem;line-height:1.15;
+  margin-bottom:.5rem;color:var(--ink)}
+.hero-sub{font-family:var(--mono);font-size:.72rem;color:#888;letter-spacing:.5px}
+.hero-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.pill{font-family:var(--mono);font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;
+  background:var(--violet-dim);color:var(--violet);border:1px solid rgba(91,63,232,.3);
+  border-radius:999px;padding:.25rem .75rem}
+
+/* ── CARD ── */
+.card{background:#fff;border:1px solid rgba(91,63,232,.12);border-radius:var(--r);
+  padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1.25rem}
+.card-label{font-family:var(--mono);font-size:.58rem;letter-spacing:3px;text-transform:uppercase;
+  color:#aaa;margin-bottom:1rem;display:block}
+
+/* ── DRUG SEARCH INPUT ── */
+.search-wrap{position:relative}
+.drug-input{width:100%;padding:.85rem 1rem;border:1.5px solid rgba(91,63,232,.2);
+  border-radius:10px;font-family:var(--mono);font-size:.85rem;background:#fff;
+  color:var(--ink);transition:border .2s;outline:none}
+.drug-input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(91,63,232,.1)}
+.drug-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;
+  border:1.5px solid rgba(91,63,232,.2);border-radius:10px;z-index:50;max-height:240px;
+  overflow-y:auto;box-shadow:0 8px 32px rgba(10,10,15,.12);display:none}
+.drug-dropdown.open{display:block}
+.drug-option{padding:.6rem 1rem;font-family:var(--mono);font-size:.78rem;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(91,63,232,.06)}
+.drug-option:last-child{border-bottom:none}
+.drug-option:hover{background:var(--violet-dim)}
+.drug-option .did{color:#aaa;font-size:.65rem}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:10px;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:1px;text-transform:uppercase;
+  font-weight:700;cursor:pointer;border:none;transition:all .18s}
+.btn-primary{background:var(--violet);color:#fff;box-shadow:0 4px 16px rgba(91,63,232,.3)}
+.btn-primary:hover{background:var(--violet-lt);transform:translateY(-2px);box-shadow:0 6px 24px rgba(91,63,232,.4)}
+.btn-primary:disabled{opacity:.5;transform:none;cursor:not-allowed}
+.btn-outline{background:#fff;color:var(--violet);border:1.5px solid rgba(91,63,232,.3)}
+.btn-outline:hover{background:var(--violet-dim);border-color:var(--violet)}
+.btn-ghost{background:none;color:#888;border:1.5px solid rgba(0,0,0,.1)}
+.btn-ghost:hover{color:var(--ink);border-color:rgba(0,0,0,.3)}
+.btn-full{width:100%;justify-content:center}
+
+/* ── METRICS ── */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
+.metric{background:#fff;border:1px solid rgba(91,63,232,.12);border-radius:12px;padding:1rem 1.1rem;
+  box-shadow:var(--shadow)}
+.metric-label{font-family:var(--mono);font-size:.55rem;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:.3rem}
+.metric-value{font-family:var(--serif);font-style:italic;font-size:1.6rem;color:var(--ink)}
+.metric-sub{font-family:var(--mono);font-size:.6rem;color:#aaa;margin-top:.15rem}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .9rem;border-radius:999px;
+  font-family:var(--mono);font-size:.65rem;font-weight:700;letter-spacing:1px}
+.badge-safe{background:#D1FAF0;color:#00705C;border:1.5px solid #00C9A7}
+.badge-warn{background:#FEF3C7;color:#92400E;border:1.5px solid #F59E0B}
+.badge-danger{background:#FFE4E6;color:#9B1C1C;border:1.5px solid #FF4D6D}
+
+/* ── RESULT CARD ── */
+.result-card{border:1.5px solid rgba(91,63,232,.18);border-radius:16px;padding:1.5rem;
+  background:linear-gradient(135deg,#fff 0%,rgba(91,63,232,.03) 100%)}
+.result-type{font-family:var(--serif);font-style:italic;font-size:1.5rem;margin-bottom:.5rem}
+.clinical-note{background:linear-gradient(135deg,#F0FDF9,#EEF4FF);border:1px solid #B2F5E8;
+  border-radius:10px;padding:.85rem 1.1rem;font-size:.84rem;line-height:1.7;color:#166534;margin-top:.75rem}
+.disclaimer{background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;
+  padding:.7rem 1rem;font-size:.75rem;color:#92400E;margin-top:.6rem;font-family:var(--mono)}
+
+/* ── PROBABILITY BAR ── */
+.prob-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem}
+.prob-label{font-family:var(--mono);font-size:.68rem;color:var(--ink);width:42%;text-align:right;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prob-bar-wrap{flex:1;background:rgba(91,63,232,.1);border-radius:999px;height:8px;overflow:hidden}
+.prob-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--violet),var(--violet-lt));
+  transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+.prob-pct{font-family:var(--mono);font-size:.65rem;color:var(--violet);min-width:46px}
+
+/* ── PROGRESS STREAM ── */
+.stream-overlay{position:fixed;inset:0;background:rgba(10,10,15,.55);backdrop-filter:blur(6px);
+  z-index:200;display:flex;align-items:center;justify-content:center;display:none}
+.stream-overlay.open{display:flex}
+.stream-box{background:#fff;border-radius:20px;padding:2.5rem;width:420px;max-width:90vw;
+  box-shadow:0 24px 80px rgba(10,10,15,.25)}
+.stream-title{font-family:var(--serif);font-style:italic;font-size:1.4rem;margin-bottom:1.5rem}
+.stream-step{font-family:var(--mono);font-size:.72rem;color:#888;margin-bottom:.75rem;
+  display:flex;align-items:center;gap:.6rem}
+.stream-step.done{color:var(--teal)}
+.stream-step.active{color:var(--violet)}
+.stream-track{width:100%;height:6px;background:rgba(91,63,232,.1);border-radius:999px;margin:.75rem 0}
+.stream-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--violet),var(--teal));
+  transition:width .4s ease}
+
+/* ── TABLE ── */
+.data-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.75rem}
+.data-table thead tr{background:rgba(91,63,232,.06)}
+.data-table th{padding:.65rem 1rem;text-align:left;color:var(--violet);font-size:.6rem;
+  letter-spacing:2px;text-transform:uppercase;border-bottom:2px solid rgba(91,63,232,.12)}
+.data-table td{padding:.6rem 1rem;border-bottom:1px solid rgba(91,63,232,.06);color:var(--ink)}
+.data-table tr:hover td{background:rgba(91,63,232,.04)}
+
+/* ── 3D GRAPH CONTAINER ── */
+#graph-canvas-wrap{width:100%;height:500px;border-radius:16px;overflow:hidden;
+  background:radial-gradient(ellipse at center,#0D0D1A 0%,#060610 100%);
+  position:relative;border:1px solid rgba(91,63,232,.3)}
+#graph-canvas-wrap canvas{display:block}
+.graph-legend{display:flex;flex-wrap:wrap;gap:.75rem;padding:.75rem 0;font-family:var(--mono);font-size:.65rem;color:#888}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle}
+
+/* ── HEATMAP ── */
+.heatmap-cell{border-radius:6px;transition:opacity .2s;cursor:default}
+.heatmap-cell:hover{opacity:.8}
+
+/* ── AUTH MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,10,15,.5);backdrop-filter:blur(6px);
+  z-index:300;display:flex;align-items:center;justify-content:center;display:none}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:20px;padding:2.5rem;width:380px;max-width:90vw;box-shadow:0 24px 80px rgba(10,10,15,.2)}
+.modal-title{font-family:var(--serif);font-style:italic;font-size:1.5rem;margin-bottom:1.5rem}
+.form-field{margin-bottom:1rem}
+.form-label{font-family:var(--mono);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;
+  color:#aaa;display:block;margin-bottom:.4rem}
+.form-input{width:100%;padding:.75rem 1rem;border:1.5px solid rgba(91,63,232,.2);
+  border-radius:10px;font-family:var(--mono);font-size:.85rem;outline:none;
+  transition:border .2s;color:var(--ink)}
+.form-input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(91,63,232,.1)}
+.form-err{font-family:var(--mono);font-size:.65rem;color:var(--danger);margin-top:.4rem}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:2px dashed rgba(91,63,232,.3);border-radius:14px;padding:2.5rem;
+  text-align:center;cursor:pointer;transition:all .2s;background:rgba(91,63,232,.02)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--violet);background:var(--violet-dim)}
+.upload-zone p{font-family:var(--mono);font-size:.75rem;color:#888;margin-top:.5rem}
+
+/* ── HISTORY ITEM ── */
+.hist-item{display:flex;align-items:center;gap:1rem;padding:1rem;border-radius:12px;
+  border:1px solid rgba(91,63,232,.1);margin-bottom:.6rem;background:#fff;transition:all .15s}
+.hist-item:hover{border-color:rgba(91,63,232,.3);box-shadow:var(--shadow)}
+.hist-drugs{font-family:var(--mono);font-size:.75rem;font-weight:700}
+.hist-pred{font-family:var(--mono);font-size:.65rem;color:#888;margin-top:.2rem;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:320px}
+.hist-meta{margin-left:auto;text-align:right}
+.hist-conf{font-family:var(--serif);font-style:italic;font-size:1.2rem;color:var(--violet)}
+.hist-date{font-family:var(--mono);font-size:.6rem;color:#aaa;margin-top:.2rem}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:.25rem;background:rgba(91,63,232,.06);border-radius:12px;padding:.3rem;
+  margin-bottom:1.5rem;width:fit-content}
+.tab{font-family:var(--mono);font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;
+  padding:.45rem 1.1rem;border-radius:9px;cursor:pointer;color:#888;border:none;background:none;transition:all .15s}
+.tab:hover{color:var(--ink)}
+.tab.active{background:#fff;color:var(--violet);font-weight:700;box-shadow:0 2px 8px rgba(91,63,232,.15)}
+
+/* ── GRID ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}.nav-links{display:none}}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(91,63,232,.2);border-radius:999px}
+
+/* ── PDF PRINT ── */
+@media print{nav,.no-print{display:none!important}.page.active{padding:0}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+<div class="nav-inner">
+  <div class="nav-brand">DDI Intelligence</div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('predict')">Predict</button>
+    <button class="nav-btn" onclick="showPage('batch')">Batch</button>
+    <button class="nav-btn" onclick="showPage('matrix')">Matrix</button>
+    <button class="nav-btn" onclick="showPage('explore')">Explore</button>
+    <button class="nav-btn" onclick="showPage('history')">History</button>
+  </div>
+  <div class="nav-auth" id="nav-auth">
+    <button class="btn btn-outline" style="padding:.4rem .9rem;font-size:.62rem" onclick="openAuth('login')">Log in</button>
+    <button class="btn btn-primary" style="padding:.4rem .9rem;font-size:.62rem" onclick="openAuth('register')">Sign up</button>
+  </div>
+</div>
+</nav>
+
+<!-- STREAM OVERLAY -->
+<div class="stream-overlay" id="stream-overlay">
+<div class="stream-box">
+  <div class="stream-title">Analysing interaction…</div>
+  <div id="stream-steps"></div>
+  <div class="stream-track"><div class="stream-fill" id="stream-fill" style="width:0%"></div></div>
+  <div style="font-family:var(--mono);font-size:.65rem;color:#aaa" id="stream-msg">Initialising R-GCN…</div>
+</div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal">
+<div class="modal">
+  <div class="modal-title" id="auth-title">Sign in</div>
+  <div class="form-field">
+    <label class="form-label">Username</label>
+    <input class="form-input" id="auth-user" placeholder="your_username"/>
+  </div>
+  <div class="form-field">
+    <label class="form-label">Password</label>
+    <input class="form-input" id="auth-pass" type="password" placeholder="••••••••"/>
+  </div>
+  <div class="form-err" id="auth-err"></div>
+  <div style="display:flex;gap:.75rem;margin-top:1.25rem">
+    <button class="btn btn-primary btn-full" id="auth-submit-btn" onclick="submitAuth()">Sign in</button>
+    <button class="btn btn-ghost" onclick="closeAuth()">Cancel</button>
+  </div>
+  <div style="text-align:center;margin-top:1rem;font-family:var(--mono);font-size:.65rem;color:#aaa">
+    <span id="auth-switch-text">No account? </span>
+    <a href="#" style="color:var(--violet)" id="auth-switch-link" onclick="toggleAuthMode();return false">Sign up</a>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE 1 — PREDICT
+═══════════════════════════════════════════════════════════ -->
+<div class="page active" id="page-predict">
+
+<div class="hero">
+  <div class="hero-eyebrow">R-GCN · DrugBank Knowledge Graph</div>
+  <div class="hero-title">Drug–Drug Interaction<br/>Intelligence Platform</div>
+  <div class="hero-sub">Heterogeneous GNN · 105 interaction classes · 9,495 drugs</div>
+  <div class="hero-pills">
+    <span class="pill">Graph Embeddings</span>
+    <span class="pill">Relational GCN</span>
+    <span class="pill">3D Subgraph</span>
+    <span class="pill">PDF Export</span>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:1.25rem">
+  <div class="card">
+    <span class="card-label">Drug A — DrugBank ID or Name</span>
+    <div class="search-wrap">
+      <input class="drug-input" id="drug-a-input" placeholder="Search e.g. Aspirin, DB00945…" autocomplete="off"
+             oninput="drugSearch(this,'drug-a-drop','drug-a-val')" onblur="setTimeout(()=>hideDrop('drug-a-drop'),200)"/>
+      <div class="drug-dropdown" id="drug-a-drop"></div>
+      <input type="hidden" id="drug-a-val"/>
+    </div>
+  </div>
+  <div class="card">
+    <span class="card-label">Drug B — DrugBank ID or Name</span>
+    <div class="search-wrap">
+      <input class="drug-input" id="drug-b-input" placeholder="Search e.g. Warfarin, DB00682…" autocomplete="off"
+             oninput="drugSearch(this,'drug-b-drop','drug-b-val')" onblur="setTimeout(()=>hideDrop('drug-b-drop'),200)"/>
+      <div class="drug-dropdown" id="drug-b-drop"></div>
+      <input type="hidden" id="drug-b-val"/>
+    </div>
+  </div>
+</div>
+
+<div style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap">
+  <button class="btn btn-primary" id="predict-btn" onclick="runPredict()">
+    🔬 Generate Intelligence Report
+  </button>
+  <label style="display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.65rem;color:#888">
+    Top-K results:
+    <input type="number" id="topk" min="3" max="15" value="7"
+           style="width:52px;padding:.35rem .5rem;border:1.5px solid rgba(91,63,232,.2);border-radius:8px;
+                  font-family:var(--mono);font-size:.78rem;outline:none;text-align:center"/>
+  </label>
+</div>
+
+<!-- Result area -->
+<div id="predict-result" style="display:none">
+
+  <div class="metrics" id="predict-metrics"></div>
+
+  <div class="grid-2">
+    <div>
+      <div class="card result-card" id="result-main-card"></div>
+    </div>
+    <div>
+      <div class="card">
+        <span class="card-label">Probability Distribution</span>
+        <div id="prob-bars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D Graph -->
+  <div class="card no-print" style="margin-top:1.25rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <span class="card-label" style="margin-bottom:0">Knowledge Subgraph (3D)</span>
+      <button class="btn btn-outline" style="font-size:.6rem;padding:.4rem .85rem" onclick="loadGraph()">
+        ⬡ Load 3D Graph
+      </button>
+    </div>
+    <div id="graph-canvas-wrap">
+      <div style="display:flex;align-items:center;justify-content:center;height:100%;
+                  font-family:var(--mono);font-size:.75rem;color:#444">
+        Click "Load 3D Graph" to visualise the knowledge subgraph
+      </div>
+    </div>
+    <div class="graph-legend">
+      <span><span class="legend-dot" style="background:#00C9A7"></span>Drug A</span>
+      <span><span class="legend-dot" style="background:#5B3FE8"></span>Drug B</span>
+      <span><span class="legend-dot" style="background:#8B72FF"></span>Shared neighbours</span>
+      <span><span class="legend-dot" style="background:#F59E0B"></span>Proteins</span>
+      <span><span class="legend-dot" style="background:#10B981"></span>ATC codes</span>
+      <span><span class="legend-dot" style="background:#FF4D6D"></span>Diseases</span>
+      <span><span class="legend-dot" style="background:#94A3B8"></span>Side effects</span>
+    </div>
+  </div>
+
+  <!-- Export -->
+  <div class="card no-print" style="margin-top:1.25rem">
+    <span class="card-label">Export</span>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+      <button class="btn btn-outline" onclick="exportPDF()">📄 Export PDF Report</button>
+      <button class="btn btn-ghost" onclick="exportJSON()">{ } Export JSON</button>
+    </div>
+  </div>
+
+</div><!-- /predict-result -->
+</div><!-- /page-predict -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE 2 — BATCH
+═══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-batch">
+<div class="hero">
+  <div class="hero-eyebrow">Bulk Processing</div>
+  <div class="hero-title">Batch Analysis Engine</div>
+  <div class="hero-sub">Upload a CSV · Analyse at scale · Download results</div>
+</div>
+
+<div class="card">
+  <span class="card-label">CSV Format</span>
+  <pre style="background:rgba(91,63,232,.06);padding:.75rem 1rem;border-radius:8px;
+       font-family:var(--mono);font-size:.72rem;color:var(--violet);overflow-x:auto">drug_a,drug_b
+DB00316,DB01050
+DB00945,DB00682</pre>
+</div>
+
+<div class="upload-zone" id="upload-zone" onclick="document.getElementById('csv-file').click()"
+     ondragover="event.preventDefault();this.classList.add('drag')"
+     ondragleave="this.classList.remove('drag')"
+     ondrop="handleDrop(event)">
+  <div style="font-size:2.5rem">📂</div>
+  <p>Drop your CSV here or click to browse</p>
+  <p style="font-size:.65rem;margin-top:.25rem">Supports .csv files</p>
+  <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="handleFile(this)"/>
+</div>
+
+<div id="batch-preview" style="display:none;margin-top:1.25rem"></div>
+<div id="batch-result" style="display:none;margin-top:1.25rem"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE 3 — MATRIX
+═══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-matrix">
+<div class="hero">
+  <div class="hero-eyebrow">Polypharmacy Analysis</div>
+  <div class="hero-title">Multi-Drug Interaction Matrix</div>
+  <div class="hero-sub">Select N drugs · Analyse all pairwise interactions · Visualise the heatmap</div>
+</div>
+
+<div class="card">
+  <span class="card-label">Select Drugs (3–10)</span>
+  <div id="matrix-drug-inputs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:1rem"></div>
+  <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+    <button class="btn btn-ghost" style="font-size:.62rem" onclick="addMatrixDrug()">+ Add Drug</button>
+    <button class="btn btn-primary" onclick="runMatrix()">🧬 Analyse All Pairs</button>
+  </div>
+</div>
+
+<div id="matrix-result" style="display:none"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE 4 — EXPLORE
+═══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-explore">
+<div class="hero">
+  <div class="hero-eyebrow">Knowledge Graph Explorer</div>
+  <div class="hero-title">Drug Profile Viewer</div>
+  <div class="hero-sub">Search any drug to view its connectivity profile</div>
+</div>
+
+<div class="card">
+  <span class="card-label">Search Drug</span>
+  <div class="search-wrap">
+    <input class="drug-input" id="explore-input" placeholder="e.g. Ibuprofen, DB01050…" autocomplete="off"
+           oninput="drugSearch(this,'explore-drop','explore-val')" onblur="setTimeout(()=>hideDrop('explore-drop'),200)"/>
+    <div class="drug-dropdown" id="explore-drop"></div>
+    <input type="hidden" id="explore-val"/>
+  </div>
+  <button class="btn btn-primary" style="margin-top:1rem" onclick="loadProfile()">View Profile</button>
+</div>
+
+<div id="explore-result" style="display:none"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE 5 — HISTORY
+═══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-history">
+<div class="hero">
+  <div class="hero-eyebrow">Prediction Log</div>
+  <div class="hero-title">Your History</div>
+  <div class="hero-sub">All predictions from your account, newest first</div>
+</div>
+
+<div id="history-auth-prompt" style="display:none">
+  <div class="card" style="text-align:center;padding:3rem">
+    <div style="font-size:2.5rem;margin-bottom:1rem">🔐</div>
+    <div style="font-family:var(--mono);font-size:.75rem;color:#888;margin-bottom:1.25rem">
+      Sign in to save and view your prediction history
+    </div>
+    <button class="btn btn-primary" onclick="openAuth('login')">Sign in</button>
+  </div>
+</div>
+
+<div id="history-list" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <span style="font-family:var(--mono);font-size:.65rem;color:#888" id="history-count"></span>
+    <div style="display:flex;gap:.5rem">
+      <button class="btn btn-ghost" style="font-size:.62rem" onclick="exportHistoryCSV()">📥 Export CSV</button>
+      <button class="btn btn-ghost" style="font-size:.62rem;color:var(--danger)" onclick="clearHistory()">🗑 Clear</button>
+    </div>
+  </div>
+  <div id="history-items"></div>
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════ -->
+<script>
+// ── CONFIG — change this to your Render URL ──────────────────────────────────
+const API = 'https://varshasekar-ddi-api.hf.space';
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let token    = localStorage.getItem('ddi_token')    || '';
+let username = localStorage.getItem('ddi_username') || '';
+let lastResult = null;
+let authMode = 'login';
+let matrixDrugCount = 3;
+let threeScene = null;
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  updateAuthUI();
+  initMatrixInputs();
+});
+
+// ── PAGE NAVIGATION ───────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  event?.target?.classList.add('active');
+  if (name === 'history') loadHistory();
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function openAuth(mode) {
+  authMode = mode;
+  document.getElementById('auth-title').textContent      = mode === 'login' ? 'Sign in' : 'Create account';
+  document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'Sign in' : 'Create account';
+  document.getElementById('auth-switch-text').textContent = mode === 'login' ? 'No account? ' : 'Have an account? ';
+  document.getElementById('auth-switch-link').textContent = mode === 'login' ? 'Sign up' : 'Sign in';
+  document.getElementById('auth-err').textContent = '';
+  document.getElementById('auth-modal').classList.add('open');
+}
+function closeAuth() { document.getElementById('auth-modal').classList.remove('open'); }
+function toggleAuthMode() { openAuth(authMode === 'login' ? 'register' : 'login'); }
+
+async function submitAuth() {
+  const user = document.getElementById('auth-user').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  const errEl = document.getElementById('auth-err');
+  if (!user || !pass) { errEl.textContent = 'Please fill in both fields'; return; }
+  try {
+    const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+    const res = await fetch(API + endpoint, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({username: user, password: pass})
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.detail || 'Error'; return; }
+    token = data.token; username = data.username;
+    localStorage.setItem('ddi_token', token);
+    localStorage.setItem('ddi_username', username);
+    updateAuthUI(); closeAuth();
+  } catch(e) { errEl.textContent = 'Connection error'; }
+}
+
+function logout() {
+  token = username = '';
+  localStorage.removeItem('ddi_token'); localStorage.removeItem('ddi_username');
+  updateAuthUI();
+}
+
+function updateAuthUI() {
+  const el = document.getElementById('nav-auth');
+  if (token && username) {
+    el.innerHTML = `<span class="nav-user">👤 ${username}</span>
+      <button class="btn btn-ghost" style="padding:.35rem .8rem;font-size:.6rem" onclick="logout()">Sign out</button>`;
+  } else {
+    el.innerHTML = `
+      <button class="btn btn-outline" style="padding:.4rem .9rem;font-size:.62rem" onclick="openAuth('login')">Log in</button>
+      <button class="btn btn-primary" style="padding:.4rem .9rem;font-size:.62rem" onclick="openAuth('register')">Sign up</button>`;
+  }
+}
+
+// ── DRUG SEARCH AUTOCOMPLETE ─────────────────────────────────────────────────
+let drugSearchTimeout = null;
+async function drugSearch(input, dropId, valId) {
+  const q = input.value.trim();
+  clearTimeout(drugSearchTimeout);
+  if (!q) { hideDrop(dropId); return; }
+  drugSearchTimeout = setTimeout(async () => {
+    try {
+      const res  = await fetch(`${API}/api/drugs?q=${encodeURIComponent(q)}&limit=15`);
+      const data = await res.json();
+      const drop = document.getElementById(dropId);
+      if (!data.length) { hideDrop(dropId); return; }
+      drop.innerHTML = data.map(d =>
+        `<div class="drug-option" onmousedown="selectDrug('${d.id}','${d.name}','${input.id}','${dropId}','${valId}')">
+          <span>${d.name}</span><span class="did">${d.id}</span>
+        </div>`).join('');
+      drop.classList.add('open');
+    } catch(e) {}
+  }, 250);
+}
+
+function selectDrug(id, name, inputId, dropId, valId) {
+  document.getElementById(inputId).value = name !== id ? `${name} (${id})` : id;
+  document.getElementById(valId).value   = id;
+  hideDrop(dropId);
+}
+function hideDrop(id) { document.getElementById(id)?.classList.remove('open'); }
+
+// ── PREDICT (STREAMING) ───────────────────────────────────────────────────────
+async function runPredict() {
+  const da  = document.getElementById('drug-a-val').value.trim();
+  const db  = document.getElementById('drug-b-val').value.trim();
+  const topk = parseInt(document.getElementById('topk').value) || 7;
+  if (!da || !db) { alert('Please select both drugs from the autocomplete'); return; }
+
+  // Show stream overlay
+  const overlay  = document.getElementById('stream-overlay');
+  const stepsEl  = document.getElementById('stream-steps');
+  const fillEl   = document.getElementById('stream-fill');
+  const msgEl    = document.getElementById('stream-msg');
+  overlay.classList.add('open');
+  stepsEl.innerHTML = '';
+  fillEl.style.width = '0%';
+
+  const btn = document.getElementById('predict-btn');
+  btn.disabled = true;
+
+  try {
+    const headers = token ? {Authorization: `Bearer ${token}`} : {};
+    const res = await fetch(`${API}/api/predict/stream`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', ...headers},
+      body: JSON.stringify({drug_a: da, drug_b: db, top_k: topk})
+    });
+
+    const reader = res.body.getReader();
+    const dec    = new TextDecoder();
+    let   buf    = '';
+    let   result = null;
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, {stream: true});
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data:')) continue;
+        const ev = JSON.parse(line.slice(5).trim());
+        if (ev.type === 'progress') {
+          fillEl.style.width = (ev.pct * 100) + '%';
+          msgEl.textContent  = ev.msg;
+          const stepDiv = document.createElement('div');
+          stepDiv.className = 'stream-step done';
+          stepDiv.textContent = '✓ ' + ev.msg;
+          stepsEl.appendChild(stepDiv);
+        } else if (ev.type === 'result') {
+          result = ev.data;
+          fillEl.style.width = '100%';
+        } else if (ev.type === 'error') {
+          overlay.classList.remove('open');
+          alert('Error: ' + ev.message);
+          btn.disabled = false;
+          return;
+        }
+      }
+    }
+
+    overlay.classList.remove('open');
+    if (result) renderPredictResult(result);
+
+  } catch(e) {
+    overlay.classList.remove('open');
+    alert('Connection error: ' + e.message);
+  }
+  btn.disabled = false;
+}
+
+function renderPredictResult(r) {
+  lastResult = r;
+  const conf  = (r.confidence * 100).toFixed(2);
+  const isInt = r.is_interaction;
+  const badge = isInt
+    ? (r.confidence > .75
+      ? '<span class="badge badge-danger">⚠ HIGH RISK</span>'
+      : '<span class="badge badge-warn">◎ POSSIBLE</span>')
+    : '<span class="badge badge-safe">✓ NO INTERACTION</span>';
+
+  // Metrics
+  document.getElementById('predict-metrics').innerHTML = `
+    <div class="metric"><div class="metric-label">Status</div>
+      <div class="metric-value" style="font-size:1.1rem;font-family:var(--mono);color:${isInt?'var(--danger)':'var(--safe)'}">
+        ${isInt ? 'INTERACTION ⚠' : 'SAFE ✓'}</div></div>
+    <div class="metric"><div class="metric-label">Drug A</div>
+      <div class="metric-value" style="font-size:1rem">${r.drug_a_name||r.drug_a_id}</div>
+      <div class="metric-sub">${r.drug_a_id}</div></div>
+    <div class="metric"><div class="metric-label">Drug B</div>
+      <div class="metric-value" style="font-size:1rem">${r.drug_b_name||r.drug_b_id}</div>
+      <div class="metric-sub">${r.drug_b_id}</div></div>
+    <div class="metric"><div class="metric-label">Confidence</div>
+      <div class="metric-value">${conf}%</div></div>
+    <div class="metric"><div class="metric-label">Embed Mode</div>
+      <div class="metric-value" style="font-size:.85rem">${r.embed_mode}</div></div>`;
+
+  // Main result card
+  document.getElementById('result-main-card').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
+      <div class="card-label" style="margin:0">Primary Prediction</div>
+      ${badge}
+    </div>
+    <div class="result-type">${r.top_prediction}</div>
+    <div style="font-family:var(--mono);font-size:.65rem;color:#aaa;margin-bottom:.75rem">
+      Confidence: <strong style="color:var(--violet)">${conf}%</strong>
+    </div>
+    <div class="clinical-note">🔬 <strong>Clinical Note:</strong> ${r.description}</div>
+    <div class="disclaimer">⚠ For research purposes only. Consult a qualified pharmacist or physician.</div>`;
+
+  // Probability bars
+  const bars = r.top_k.map(([cls, prob]) => {
+    const pct  = (prob * 100).toFixed(2);
+    const band = pct > 50 ? 'var(--danger)' : pct > 20 ? 'var(--amber)' : 'var(--violet)';
+    return `<div class="prob-row">
+      <div class="prob-label" title="${cls}">${cls.length>38?cls.slice(0,37)+'…':cls}</div>
+      <div class="prob-bar-wrap"><div class="prob-bar" style="width:${Math.min(pct,100)}%;background:${band}"></div></div>
+      <div class="prob-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+  document.getElementById('prob-bars').innerHTML = bars;
+
+  document.getElementById('predict-result').style.display = 'block';
+  document.getElementById('predict-result').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── 3D GRAPH (Three.js) ───────────────────────────────────────────────────────
+async function loadGraph() {
+  const da = document.getElementById('drug-a-val').value;
+  const db = document.getElementById('drug-b-val').value;
+  if (!da || !db) return;
+
+  const wrap = document.getElementById('graph-canvas-wrap');
+  wrap.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--mono);font-size:.75rem;color:#888">Loading subgraph…</div>';
+
+  try {
+    const res  = await fetch(`${API}/api/subgraph?drug_a=${da}&drug_b=${db}&max_nbr=12`);
+    const data = await res.json();
+    renderThreeGraph(wrap, data);
+  } catch(e) {
+    wrap.innerHTML = `<div style="text-align:center;padding:3rem;font-family:var(--mono);font-size:.75rem;color:#888">
+      ⚠ Could not load graph: ${e.message}</div>`;
+  }
+}
+
+function renderThreeGraph(container, graphData) {
+  container.innerHTML = '';
+
+  const W = container.clientWidth, H = 500;
+  const scene    = new THREE.Scene();
+  const camera   = new THREE.PerspectiveCamera(60, W/H, 0.1, 2000);
+  camera.position.set(0, 0, 350);
+
+  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  container.appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const dirLight = new THREE.DirectionalLight(0x8B72FF, 0.5);
+  dirLight.position.set(100, 100, 100);
+  scene.add(dirLight);
+
+  const NODE_COLORS = {
+    drug_a:  0x00C9A7, drug_b:  0x5B3FE8, shared: 0x8B72FF,
+    drug:    0x94A3B8, protein: 0xF59E0B, atc:    0x10B981,
+    disease: 0xFF4D6D, effect:  0xCBD5E1,
+  };
+  const NODE_SIZE = {
+    drug_a: 14, drug_b: 14, shared: 10,
+    drug: 6, protein: 5, atc: 5, disease: 5, effect: 4,
+  };
+
+  const nodes = graphData.nodes;
+  const edges = graphData.edges;
+  const positions = {};
+
+  // Spread nodes in a sphere
+  const phi = Math.PI * (3 - Math.sqrt(5));
+  nodes.forEach((n, i) => {
+    const y  = 1 - (i / (nodes.length - 1)) * 2;
+    const r  = Math.sqrt(1 - y*y);
+    const th = phi * i;
+    const R  = 180;
+    positions[n.id] = new THREE.Vector3(Math.cos(th)*r*R, y*R, Math.sin(th)*r*R);
+  });
+
+  // Override main drug positions
+  const idA = graphData.drug_a?.id, idB = graphData.drug_b?.id;
+  nodes.forEach(n => {
+    if (n.id === `d_${idA}` || n.type === 'drug_a') positions[n.id].set(-80, 0, 0);
+    if (n.id === `d_${idB}` || n.type === 'drug_b') positions[n.id].set(80, 0, 0);
+  });
+
+  // Draw edges
+  edges.forEach(e => {
+    const pa = positions[e.source], pb = positions[e.target];
+    if (!pa || !pb) return;
+    const pts = [pa, pb];
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    const mat = new THREE.LineBasicMaterial({color:0x334155, transparent:true, opacity:.35});
+    scene.add(new THREE.Line(geo, mat));
+  });
+
+  // Draw nodes
+  const meshes = [];
+  nodes.forEach(n => {
+    const pos  = positions[n.id];
+    if (!pos) return;
+    const size = NODE_SIZE[n.type] || 5;
+    const col  = NODE_COLORS[n.type] || 0x94A3B8;
+    const geo  = new THREE.SphereGeometry(size, 20, 20);
+    const mat  = new THREE.MeshPhongMaterial({color: col, shininess: 80,
+      emissive: col, emissiveIntensity: .25});
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.copy(pos);
+    mesh.userData = {label: n.label, meta: n.meta, type: n.type};
+    scene.add(mesh);
+    meshes.push(mesh);
+
+    // Pulse ring for main nodes
+    if (n.type === 'drug_a' || n.type === 'drug_b' || n.type === 'shared') {
+      const rgeo = new THREE.RingGeometry(size+3, size+5, 32);
+      const rmat = new THREE.MeshBasicMaterial({color: col, side: THREE.DoubleSide, transparent:true, opacity:.4});
+      const ring = new THREE.Mesh(rgeo, rmat);
+      ring.position.copy(pos);
+      scene.add(ring);
+    }
+  });
+
+  // Orbit controls (manual)
+  let isDragging = false, prevMouse = {x:0, y:0};
+  let spherical = {theta:0, phi:Math.PI/2, r:350};
+
+  renderer.domElement.addEventListener('mousedown', e => {
+    isDragging = true; prevMouse = {x:e.clientX, y:e.clientY};
+  });
+  window.addEventListener('mouseup', () => isDragging = false);
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - prevMouse.x, dy = e.clientY - prevMouse.y;
+    spherical.theta -= dx * .008;
+    spherical.phi   = Math.max(.1, Math.min(Math.PI-.1, spherical.phi + dy*.008));
+    prevMouse = {x:e.clientX, y:e.clientY};
+    camera.position.set(
+      spherical.r * Math.sin(spherical.phi) * Math.cos(spherical.theta),
+      spherical.r * Math.cos(spherical.phi),
+      spherical.r * Math.sin(spherical.phi) * Math.sin(spherical.theta),
+    );
+    camera.lookAt(0,0,0);
+  });
+  renderer.domElement.addEventListener('wheel', e => {
+    spherical.r = Math.max(100, Math.min(700, spherical.r + e.deltaY * .5));
+    camera.position.setLength(spherical.r);
+    camera.lookAt(0,0,0);
+  });
+
+  // Tooltip
+  const tooltip = document.createElement('div');
+  tooltip.style.cssText = 'position:absolute;background:rgba(10,10,15,.85);color:#fff;'+
+    'font:0.7rem/1.4 "Space Mono",monospace;padding:.35rem .7rem;border-radius:8px;'+
+    'pointer-events:none;display:none;white-space:nowrap;z-index:10';
+  container.style.position = 'relative';
+  container.appendChild(tooltip);
+
+  const raycaster = new THREE.Raycaster();
+  const mouse2d   = new THREE.Vector2();
+  renderer.domElement.addEventListener('mousemove', e => {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse2d.x = ((e.clientX - rect.left) / rect.width)  * 2 - 1;
+    mouse2d.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouse2d, camera);
+    const hits = raycaster.intersectObjects(meshes);
+    if (hits.length) {
+      const n = hits[0].object.userData;
+      tooltip.style.display = 'block';
+      tooltip.style.left    = (e.clientX - rect.left + 12) + 'px';
+      tooltip.style.top     = (e.clientY - rect.top  - 8)  + 'px';
+      tooltip.textContent   = n.label + (n.meta ? ` — ${n.meta}` : '');
+    } else {
+      tooltip.style.display = 'none';
+    }
+  });
+
+  // Animate
+  let t = 0;
+  (function animate() {
+    requestAnimationFrame(animate);
+    t += .008;
+    meshes.forEach((m, i) => {
+      if (m.userData.type === 'drug_a' || m.userData.type === 'drug_b') {
+        m.material.emissiveIntensity = .25 + .15 * Math.sin(t + i);
+      }
+    });
+    renderer.render(scene, camera);
+  })();
+
+  threeScene = {scene, renderer, camera};
+}
+
+// ── BATCH ─────────────────────────────────────────────────────────────────────
+let batchData = null;
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) processCSVFile(file);
+}
+
+function handleFile(input) {
+  if (input.files[0]) processCSVFile(input.files[0]);
+}
+
+function processCSVFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines  = e.target.result.trim().split('\n');
+    const header = lines[0].toLowerCase();
+    const rows   = lines.slice(1).filter(Boolean).map(l => {
+      const cols = l.split(',');
+      return {drug_a: cols[0]?.trim(), drug_b: cols[1]?.trim()};
+    }).filter(r => r.drug_a && r.drug_b);
+
+    batchData = rows;
+    const prev = document.getElementById('batch-preview');
+    prev.style.display = 'block';
+    prev.innerHTML = `<div class="card">
+      <span class="card-label">Preview — ${rows.length} pairs</span>
+      <table class="data-table"><thead><tr><th>#</th><th>Drug A</th><th>Drug B</th></tr></thead>
+      <tbody>${rows.slice(0,5).map((r,i) => `<tr><td>${i+1}</td><td>${r.drug_a}</td><td>${r.drug_b}</td></tr>`).join('')}
+      ${rows.length>5?`<tr><td colspan="3" style="color:#aaa;text-align:center">… ${rows.length-5} more rows</td></tr>`:''}
+      </tbody></table>
+      <button class="btn btn-primary" style="margin-top:1rem" onclick="runBatch()">▶ Run Batch Analysis</button>
+    </div>`;
+  };
+  reader.readAsText(file);
+}
+
+async function runBatch() {
+  if (!batchData?.length) return;
+  const prog = document.createElement('div');
+  prog.className = 'card';
+  prog.innerHTML = '<span class="card-label">Processing…</span><div class="stream-track"><div class="stream-fill" id="batch-fill" style="width:0%"></div></div>';
+  document.getElementById('batch-result').style.display = 'block';
+  document.getElementById('batch-result').innerHTML = '';
+  document.getElementById('batch-result').appendChild(prog);
+
+  const headers = token ? {Authorization:`Bearer ${token}`} : {};
+  headers['Content-Type'] = 'application/json';
+
+  try {
+    const res  = await fetch(`${API}/api/predict/batch`, {
+      method: 'POST', headers,
+      body: JSON.stringify({pairs: batchData, top_k: 1})
+    });
+    const data = await res.json();
+    renderBatchResult(data.results);
+  } catch(e) {
+    document.getElementById('batch-result').innerHTML = `<div class="card" style="color:var(--danger)">Error: ${e.message}</div>`;
+  }
+}
+
+function renderBatchResult(results) {
+  const ni = results.filter(r => r.is_interaction).length;
+  const ns = results.length - ni;
+  const rows = results.map(r => {
+    const conf = r.confidence ? (r.confidence*100).toFixed(1)+'%' : '-';
+    const badge = r.is_interaction
+      ? `<span class="badge badge-danger" style="font-size:.58rem">YES</span>`
+      : `<span class="badge badge-safe" style="font-size:.58rem">NO</span>`;
+    return `<tr><td>${r.drug_a_name||r.drug_a_id||r.drug_a}</td><td>${r.drug_b_name||r.drug_b_id||r.drug_b}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.top_prediction||r.message||'-'}</td>
+      <td>${conf}</td><td>${badge}</td></tr>`;
+  }).join('');
+
+  document.getElementById('batch-result').innerHTML = `
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Total Pairs</div><div class="metric-value">${results.length}</div></div>
+      <div class="metric"><div class="metric-label">Interactions</div><div class="metric-value" style="color:var(--danger)">${ni}</div></div>
+      <div class="metric"><div class="metric-label">Safe Pairs</div><div class="metric-value" style="color:var(--safe)">${ns}</div></div>
+    </div>
+    <div class="card" style="overflow-x:auto">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:.75rem">
+        <button class="btn btn-outline" style="font-size:.62rem" onclick="downloadBatchCSV(${JSON.stringify(results).replace(/</g,'&lt;')})">📥 Download CSV</button>
+      </div>
+      <table class="data-table"><thead><tr><th>Drug A</th><th>Drug B</th><th>Prediction</th><th>Conf</th><th>Interaction</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+function downloadBatchCSV(results) {
+  const header = 'Drug A,Drug B,Prediction,Confidence,Interaction\n';
+  const rows   = results.map(r =>
+    `${r.drug_a_id||r.drug_a},${r.drug_b_id||r.drug_b},"${r.top_prediction||r.message||'-'}",${r.confidence?(r.confidence*100).toFixed(1)+'%':'-'},${r.is_interaction?'Yes':'No'}`
+  ).join('\n');
+  downloadText('ddi_batch_results.csv', header + rows, 'text/csv');
+}
+
+// ── MATRIX ────────────────────────────────────────────────────────────────────
+let matrixDrugVals = {};
+
+function initMatrixInputs() {
+  const wrap = document.getElementById('matrix-drug-inputs');
+  wrap.innerHTML = '';
+  for (let i = 0; i < matrixDrugCount; i++) addMatrixInput(i);
+}
+
+function addMatrixDrug() {
+  if (matrixDrugCount >= 10) return;
+  const wrap = document.getElementById('matrix-drug-inputs');
+  addMatrixInput(matrixDrugCount);
+  matrixDrugCount++;
+}
+
+function addMatrixInput(i) {
+  const wrap = document.getElementById('matrix-drug-inputs');
+  const div  = document.createElement('div');
+  div.innerHTML = `
+    <div style="font-family:var(--mono);font-size:.58rem;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:.4rem">Drug ${i+1}</div>
+    <div class="search-wrap">
+      <input class="drug-input" id="mat-input-${i}" placeholder="Search drug…" autocomplete="off"
+             oninput="drugSearch(this,'mat-drop-${i}','mat-val-${i}')" onblur="setTimeout(()=>hideDrop('mat-drop-${i}'),200)"/>
+      <div class="drug-dropdown" id="mat-drop-${i}"></div>
+      <input type="hidden" id="mat-val-${i}"/>
+    </div>`;
+  wrap.appendChild(div);
+}
+
+async function runMatrix() {
+  const drugs = [];
+  for (let i = 0; i < matrixDrugCount; i++) {
+    const v = document.getElementById(`mat-val-${i}`)?.value.trim();
+    if (v) drugs.push(v);
+  }
+  const unique = [...new Set(drugs)];
+  if (unique.length < 2) { alert('Please select at least 2 drugs'); return; }
+
+  const res = document.getElementById('matrix-result');
+  res.style.display = 'block';
+  res.innerHTML = '<div class="card" style="text-align:center;padding:2rem;font-family:var(--mono);font-size:.75rem;color:#888">Computing pairwise interactions…</div>';
+
+  const headers = token ? {Authorization:`Bearer ${token}`} : {};
+  headers['Content-Type'] = 'application/json';
+  try {
+    const r    = await fetch(`${API}/api/predict/matrix`, {method:'POST', headers, body:JSON.stringify({drugs:unique})});
+    const data = await r.json();
+    renderMatrix(data);
+  } catch(e) {
+    res.innerHTML = `<div class="card" style="color:var(--danger)">Error: ${e.message}</div>`;
+  }
+}
+
+function renderMatrix(data) {
+  const drugs   = data.drugs;
+  const pairs   = data.pairs;
+  const n       = drugs.length;
+  const ni      = pairs.filter(p => p.is_interaction).length;
+
+  // Build heatmap grid
+  const mat = {};
+  pairs.forEach(p => {
+    mat[`${p.drug_a_id}|${p.drug_b_id}`] = p;
+    mat[`${p.drug_b_id}|${p.drug_a_id}`] = p;
+  });
+
+  const cellSize = Math.min(80, Math.floor(480 / n));
+  let grid = `<div style="overflow-x:auto"><table style="border-collapse:collapse;font-family:var(--mono);font-size:${Math.max(9, cellSize*.12)}px">`;
+  grid += '<tr><td></td>' + drugs.map(d => `<td style="padding:4px;text-align:center;font-size:.58rem;color:#888;max-width:${cellSize}px;overflow:hidden;text-overflow:ellipsis">${d.slice(0,8)}</td>`).join('') + '</tr>';
+  drugs.forEach(da => {
+    grid += `<tr><td style="padding:4px;font-size:.58rem;color:#888;white-space:nowrap">${da.slice(0,8)}</td>`;
+    drugs.forEach(db => {
+      if (da === db) {
+        grid += `<td style="width:${cellSize}px;height:${cellSize}px;background:#F4F1EB;border-radius:6px;margin:2px"></td>`;
+      } else {
+        const p   = mat[`${da}|${db}`];
+        const pct = p ? (p.confidence*100) : 0;
+        const bg  = p?.is_interaction
+          ? `rgba(255,77,109,${.15 + pct*.008})`
+          : 'rgba(0,201,167,.15)';
+        const title = p ? `${p.top_prediction} (${pct.toFixed(1)}%)` : '';
+        grid += `<td title="${title}" style="width:${cellSize}px;height:${cellSize}px;background:${bg};border-radius:6px;text-align:center;vertical-align:middle;cursor:default;font-size:.6rem;color:${p?.is_interaction?'#9B1C1C':'#00705C'}">
+          ${p ? pct.toFixed(0)+'%' : '—'}
+        </td>`;
+      }
+    });
+    grid += '</tr>';
+  });
+  grid += '</table></div>';
+
+  document.getElementById('matrix-result').innerHTML = `
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Drugs</div><div class="metric-value">${drugs.length}</div></div>
+      <div class="metric"><div class="metric-label">Total Pairs</div><div class="metric-value">${pairs.length}</div></div>
+      <div class="metric"><div class="metric-label">Interactions</div><div class="metric-value" style="color:var(--danger)">${ni}</div></div>
+      <div class="metric"><div class="metric-label">Safe</div><div class="metric-value" style="color:var(--safe)">${pairs.length-ni}</div></div>
+    </div>
+    <div class="card">
+      <span class="card-label">Interaction Heatmap</span>
+      ${grid}
+      <div style="display:flex;gap:1rem;margin-top:.75rem;font-family:var(--mono);font-size:.6rem;color:#888">
+        <span><span style="display:inline-block;width:12px;height:12px;background:rgba(255,77,109,.5);border-radius:3px;vertical-align:middle;margin-right:4px"></span>Interaction</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:rgba(0,201,167,.3);border-radius:3px;vertical-align:middle;margin-right:4px"></span>No Interaction</span>
+      </div>
+    </div>
+    <div class="card">
+      <span class="card-label">Ranked Pairs</span>
+      <table class="data-table"><thead><tr><th>#</th><th>Drug A</th><th>Drug B</th><th>Prediction</th><th>Confidence</th><th>Status</th></tr></thead>
+      <tbody>${pairs.sort((a,b)=>(b.is_interaction-a.is_interaction)||(b.confidence-a.confidence))
+        .map((p,i)=>`<tr>
+          <td style="color:#aaa">${i+1}</td>
+          <td>${p.drug_a_name||p.drug_a_id||p.drug_a}</td>
+          <td>${p.drug_b_name||p.drug_b_id||p.drug_b}</td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.top_prediction||p.message||'-'}</td>
+          <td style="color:var(--violet)">${p.confidence?(p.confidence*100).toFixed(1)+'%':'-'}</td>
+          <td>${p.is_interaction?'<span class="badge badge-danger" style="font-size:.55rem">INTERACTION</span>':'<span class="badge badge-safe" style="font-size:.55rem">SAFE</span>'}</td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>`;
+}
+
+// ── EXPLORE ───────────────────────────────────────────────────────────────────
+async function loadProfile() {
+  const did = document.getElementById('explore-val').value.trim();
+  if (!did) { alert('Please select a drug'); return; }
+  try {
+    const res  = await fetch(`${API}/api/drugs/${did}/profile`);
+    const data = await res.json();
+    renderProfile(data);
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+function renderProfile(p) {
+  document.getElementById('explore-result').style.display = 'block';
+  document.getElementById('explore-result').innerHTML = `
+    <div class="card result-card">
+      <div style="font-family:var(--serif);font-style:italic;font-size:2rem;color:var(--violet);margin-bottom:.25rem">${p.name}</div>
+      <div style="font-family:var(--mono);font-size:.65rem;color:#aaa">${p.drug_id}</div>
+    </div>
+    <div class="metrics" style="margin-top:1.25rem">
+      <div class="metric"><div class="metric-label">DDI Partners</div><div class="metric-value">${p.ddi_partners}</div></div>
+      <div class="metric"><div class="metric-label">Protein Targets</div><div class="metric-value">${p.protein_targets}</div></div>
+      <div class="metric"><div class="metric-label">ATC Codes</div><div class="metric-value">${p.atc_codes}</div></div>
+      <div class="metric"><div class="metric-label">Disease Links</div><div class="metric-value">${p.disease_links}</div></div>
+      <div class="metric"><div class="metric-label">Side Effects</div><div class="metric-value">${p.side_effects}</div></div>
+    </div>`;
+}
+
+// ── HISTORY ───────────────────────────────────────────────────────────────────
+async function loadHistory() {
+  if (!token) {
+    document.getElementById('history-auth-prompt').style.display = 'block';
+    document.getElementById('history-list').style.display = 'none';
+    return;
+  }
+  document.getElementById('history-auth-prompt').style.display = 'none';
+  document.getElementById('history-list').style.display = 'block';
+
+  try {
+    const res  = await fetch(`${API}/api/history`, {headers:{Authorization:`Bearer ${token}`}});
+    const data = await res.json();
+    document.getElementById('history-count').textContent = `${data.length} predictions`;
+    document.getElementById('history-items').innerHTML = data.length ? data.map(h => {
+      const conf = (h.confidence*100).toFixed(1);
+      const badge = h.is_interaction
+        ? `<span class="badge badge-danger" style="font-size:.58rem">INTERACTION</span>`
+        : `<span class="badge badge-safe" style="font-size:.58rem">SAFE</span>`;
+      return `<div class="hist-item">
+        <div>
+          <div class="hist-drugs">${h.drug_a_name||h.drug_a} × ${h.drug_b_name||h.drug_b}</div>
+          <div class="hist-pred">${h.prediction}</div>
+        </div>
+        ${badge}
+        <div class="hist-meta">
+          <div class="hist-conf">${conf}%</div>
+          <div class="hist-date">${new Date(h.created).toLocaleDateString()}</div>
+        </div>
+      </div>`;
+    }).join('') : '<div style="text-align:center;padding:3rem;font-family:var(--mono);font-size:.75rem;color:#aaa">No predictions yet</div>';
+  } catch(e) { console.error(e); }
+}
+
+async function clearHistory() {
+  if (!confirm('Clear all history?')) return;
+  await fetch(`${API}/api/history`, {method:'DELETE', headers:{Authorization:`Bearer ${token}`}});
+  loadHistory();
+}
+
+function exportHistoryCSV() {
+  const items = document.querySelectorAll('.hist-item');
+  // Re-fetch and download
+  fetch(`${API}/api/history`, {headers:{Authorization:`Bearer ${token}`}})
+    .then(r=>r.json()).then(data => {
+      const hdr  = 'Drug A,Drug B,Prediction,Confidence,Interaction,Date\n';
+      const rows = data.map(h =>
+        `${h.drug_a},${h.drug_b},"${h.prediction}",${(h.confidence*100).toFixed(1)}%,${h.is_interaction?'Yes':'No'},${h.created}`
+      ).join('\n');
+      downloadText('ddi_history.csv', hdr+rows, 'text/csv');
+    });
+}
+
+// ── PDF EXPORT ────────────────────────────────────────────────────────────────
+function exportPDF() {
+  if (!lastResult) return;
+  const r    = lastResult;
+  const conf = (r.confidence*100).toFixed(2);
+  const date = new Date().toLocaleString();
+
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>DDI Report</title>
+  <style>
+    body{font-family:Georgia,serif;max-width:700px;margin:40px auto;color:#111;line-height:1.6}
+    h1{font-size:1.6rem;margin-bottom:.25rem}
+    .meta{font:0.8rem monospace;color:#666;margin-bottom:2rem}
+    .section{margin-bottom:1.5rem}
+    .section h2{font-size:1rem;font-family:monospace;letter-spacing:2px;text-transform:uppercase;
+      color:#5B3FE8;border-bottom:1px solid #eee;padding-bottom:.35rem;margin-bottom:.75rem}
+    .badge{display:inline-block;padding:.2rem .75rem;border-radius:999px;font:0.7rem monospace;font-weight:700}
+    .safe{background:#D1FAF0;color:#00705C}.danger{background:#FFE4E6;color:#9B1C1C}.warn{background:#FEF3C7;color:#92400E}
+    .note{background:#F0FDF9;border:1px solid #B2F5E8;border-radius:8px;padding:.75rem 1rem;font-size:.9rem;color:#166534;margin:.75rem 0}
+    .disclaimer{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:.6rem .9rem;font-size:.78rem;color:#92400E;margin-top:.6rem}
+    table{width:100%;border-collapse:collapse;font:0.82rem monospace;margin-top:.5rem}
+    th{padding:.5rem .75rem;text-align:left;background:#f5f5ff;color:#5B3FE8;font-size:.68rem;letter-spacing:1.5px;text-transform:uppercase}
+    td{padding:.5rem .75rem;border-bottom:1px solid #eee}
+    @media print{body{margin:20px}}
+  </style></head><body>
+  <h1>DDI Intelligence Report</h1>
+  <div class="meta">Generated: ${date} · Engine: R-GCN · Mode: ${r.embed_mode}</div>
+
+  <div class="section"><h2>Drug Pair</h2>
+    <table><tr><th>Drug A</th><td>${r.drug_a_name||r.drug_a_id} (${r.drug_a_id})</td></tr>
+    <tr><th>Drug B</th><td>${r.drug_b_name||r.drug_b_id} (${r.drug_b_id})</td></tr></table></div>
+
+  <div class="section"><h2>Primary Prediction</h2>
+    <span class="badge ${r.is_interaction?(r.confidence>.75?'danger':'warn'):'safe'}">
+      ${r.is_interaction?(r.confidence>.75?'⚠ HIGH RISK':'◎ POSSIBLE'):'✓ NO INTERACTION'}</span>
+    <p style="margin-top:.75rem;font-size:1.05rem"><strong>${r.top_prediction}</strong></p>
+    <p style="font:0.82rem monospace;color:#5B3FE8;margin-top:.3rem">Confidence: ${conf}%</p>
+    <div class="note">🔬 <strong>Clinical Note:</strong> ${r.description}</div>
+    <div class="disclaimer">⚠ For research purposes only. Consult a qualified healthcare professional.</div></div>
+
+  <div class="section"><h2>Top ${r.top_k.length} Predictions</h2>
+    <table><thead><tr><th>#</th><th>Interaction Type</th><th>Probability</th></tr></thead>
+    <tbody>${r.top_k.map(([cls,p],i)=>`<tr><td>${i+1}</td><td>${cls}</td><td>${(p*100).toFixed(3)}%</td></tr>`).join('')}
+    </tbody></table></div>
+  <script>window.onload=()=>window.print()<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+function exportJSON() {
+  if (!lastResult) return;
+  downloadText('ddi_result.json', JSON.stringify(lastResult, null, 2), 'application/json');
+}
+
+function downloadText(filename, text, mime) {
+  const a = document.createElement('a');
+  a.href  = URL.createObjectURL(new Blob([text], {type: mime}));
+  a.download = filename;
+  a.click();
+}
+</script>
+</body>
+</html>

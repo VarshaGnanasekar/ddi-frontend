@@ -495,7 +495,7 @@ DB00945,DB00682</pre>
 ═══════════════════════════════════════════════════════════ -->
 <script>
 // ── CONFIG — change this to your Render URL ──────────────────────────────────
-const API = 'https://varshasekar-ddi-prediction-api.hf.space/api/health';
+const API = 'https://varshasekar-ddi-prediction-api.hf.space';
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let token    = localStorage.getItem('ddi_token')    || '';
@@ -1121,7 +1121,8 @@ function renderMatrix(data) {
 
 // ── EXPLORE ───────────────────────────────────────────────────────────────────
 async function loadProfile() {
-  const did = document.getElementById('explore-val').value.trim();
+  const did = document.getElementById('explore-val').value.trim() ||
+              document.getElementById('explore-input').value.trim();
   if (!did) { alert('Please select a drug'); return; }
   try {
     const res  = await fetch(`${API}/api/drugs/${did}/profile`);

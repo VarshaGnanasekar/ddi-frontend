@@ -580,6 +580,31 @@ footer span{color:var(--teal)}
     <line x1="25"  y1="65"  x2="45"  y2="80"  stroke="#0A7C71" stroke-width="1" opacity="0.2"/>
   </svg>
 
+  <!-- Hexagonal grid – top center, very subtle -->
+  <svg class="bg-molecule" style="top:100px;left:50%;transform:translateX(-50%);width:500px;height:300px;opacity:0.045" viewBox="0 0 500 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M50,75 L75,50 L125,50 L150,75 L125,100 L75,100 Z" stroke="#0A7C71" stroke-width="1" fill="rgba(10,124,113,0.04)"/>
+    <path d="M150,75 L175,50 L225,50 L250,75 L225,100 L175,100 Z" stroke="#4F46E5" stroke-width="1" fill="rgba(79,70,229,0.04)"/>
+    <path d="M250,75 L275,50 L325,50 L350,75 L325,100 L275,100 Z" stroke="#0A7C71" stroke-width="1" fill="rgba(10,124,113,0.04)"/>
+    <path d="M350,75 L375,50 L425,50 L450,75 L425,100 L375,100 Z" stroke="#C5183B" stroke-width="1" fill="rgba(197,24,59,0.03)"/>
+    <path d="M100,150 L125,125 L175,125 L200,150 L175,175 L125,175 Z" stroke="#0FB3A3" stroke-width="1" fill="rgba(15,179,163,0.04)"/>
+    <path d="M200,150 L225,125 L275,125 L300,150 L275,175 L225,175 Z" stroke="#0A7C71" stroke-width="1" fill="rgba(10,124,113,0.04)"/>
+    <path d="M300,150 L325,125 L375,125 L400,150 L375,175 L325,175 Z" stroke="#4F46E5" stroke-width="1" fill="rgba(79,70,229,0.03)"/>
+    <path d="M50,225 L75,200 L125,200 L150,225 L125,250 L75,250 Z" stroke="#0A7C71" stroke-width="1" fill="rgba(10,124,113,0.04)"/>
+    <path d="M250,225 L275,200 L325,200 L350,225 L325,250 L275,250 Z" stroke="#C5183B" stroke-width="1" fill="rgba(197,24,59,0.03)"/>
+    <path d="M350,225 L375,200 L425,200 L450,225 L425,250 L375,250 Z" stroke="#0FB3A3" stroke-width="1" fill="rgba(15,179,163,0.03)"/>
+  </svg>
+
+  <!-- Large atom orbital – middle right background -->
+  <svg class="bg-molecule" style="top:30%;right:-80px;width:340px;height:340px;opacity:0.06" viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="170" cy="170" r="12" fill="#4F46E5" opacity="0.8"/>
+    <ellipse cx="170" cy="170" rx="140" ry="55" stroke="#4F46E5" stroke-width="1.2" fill="none"/>
+    <ellipse cx="170" cy="170" rx="140" ry="55" stroke="#0A7C71" stroke-width="1" fill="none" transform="rotate(60 170 170)"/>
+    <ellipse cx="170" cy="170" rx="140" ry="55" stroke="#C5183B" stroke-width="1" fill="none" transform="rotate(120 170 170)"/>
+    <circle cx="310" cy="170" r="6" fill="#4F46E5" opacity="0.6"/>
+    <circle cx="239" cy="49" r="5" fill="#0A7C71" opacity="0.6"/>
+    <circle cx="101" cy="49" r="5" fill="#C5183B" opacity="0.6"/>
+  </svg>
+
   <!-- Molecular chain – bottom left -->
   <svg class="bg-molecule" style="bottom:0;left:0;width:300px;height:200px" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="30"  cy="100" r="14" stroke="#0A7C71" stroke-width="1.5" fill="none" opacity="0.25"/>
@@ -1015,157 +1040,125 @@ class ForceGraph{
   resume(f=80){this.frame=Math.max(0,this.MAX-f);requestAnimationFrame(this._animate)}
 }
 
-// ════════════════════════════════
-// MATRIX SUBGRAPH
-// ════════════════════════════════
-class MatrixSubgraph{
-  constructor(container,drugs,pairs){
-    this.container=container;this.drugs=drugs;this.pairs=pairs;this._build();
+// ════════════════════════════════════════════════════════
+// MATRIX FULL KNOWLEDGE SUBGRAPH
+// Fetches /api/subgraph for every drug pair, merges all
+// nodes+edges, renders with the same rich ForceGraph used
+// on the Predict page, with per-drug-slot colour coding.
+// ════════════════════════════════════════════════════════
+const DRUG_SLOT_COLORS = [
+  '#0A7C71','#4F46E5','#E8760A','#0D9488','#9333EA',
+  '#B45309','#0369A1','#BE185D','#166534','#7C3AED'
+];
+
+async function buildMatrixKnowledgeSubgraph(wrap, drugs, pairs){
+  // Show loading state
+  wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:.85rem">
+    <div class="spinner"></div>
+    <span style="font-family:var(--mono);font-size:.72rem;color:var(--ink3)" id="msg-sbg">Fetching knowledge graphs…</span>
+  </div>`;
+
+  // Build unique pairs list from matrix results (excluding errors)
+  const validPairs=pairs.filter(p=>p.status!=='error'&&p.drug_a_id&&p.drug_b_id);
+  const msgEl=()=>document.getElementById('msg-sbg');
+
+  // Merge nodes & edges from all subgraph fetches
+  const nodeMap={};  // id → node object
+  const edgeSet=new Set();
+  const allEdges=[];
+
+  // Assign each input drug its own slot type so ForceGraph colours it distinctly
+  const drugSlotType={};
+  drugs.forEach((id,i)=>{ drugSlotType[id]=`drug_slot_${i}`; });
+
+  // Build nodeColor / nodeRadius overrides for ForceGraph
+  const slotColors={}, slotRadius={};
+  drugs.forEach((id,i)=>{
+    slotColors[`drug_slot_${i}`]=DRUG_SLOT_COLORS[i%DRUG_SLOT_COLORS.length];
+    slotRadius[`drug_slot_${i}`]=22;
+  });
+
+  let fetched=0;
+  for(const p of validPairs){
+    if(msgEl()) msgEl().textContent=`Loading pair ${++fetched}/${validPairs.length}: ${p.drug_a_id} × ${p.drug_b_id}`;
+    try{
+      const res=await fetch(`${API}/api/subgraph?drug_a=${p.drug_a_id}&drug_b=${p.drug_b_id}&max_nbr=8`);
+      if(!res.ok) continue;
+      const data=await res.json();
+
+      // Merge nodes — override type for the input drugs to their slot type
+      (data.nodes||[]).forEach(n=>{
+        if(!nodeMap[n.id]){
+          let type=n.type||'default';
+          if(drugSlotType[n.id]) type=drugSlotType[n.id];
+          nodeMap[n.id]={...n, type};
+        } else if(drugSlotType[n.id]){
+          // Ensure input drugs always keep slot type even if they appear as 'shared' in one pair
+          nodeMap[n.id].type=drugSlotType[n.id];
+        }
+      });
+
+      // Merge edges — deduplicate by from|label|to
+      (data.edges||[]).forEach(e=>{
+        const from=e.from||e.source, to=e.to||e.target;
+        const key=`${from}§${e.label||''}§${to}`;
+        if(!edgeSet.has(key)){
+          edgeSet.add(key);
+          allEdges.push({...e, from, to});
+        }
+      });
+
+      // Also add the direct interaction edge between the two drugs with confidence styling
+      const pairKey=`${p.drug_a_id}§interacts§${p.drug_b_id}`;
+      if(!edgeSet.has(pairKey)){
+        edgeSet.add(pairKey);
+        allEdges.push({
+          from:p.drug_a_id, to:p.drug_b_id,
+          label: p.is_interaction ? (p.top_prediction||'interacts') : 'no interaction',
+          color: p.is_interaction ? '#C5183B' : '#10B981',
+          weight: p.confidence||0.5,
+          dashed: !p.is_interaction
+        });
+      }
+    }catch(e){ /* skip failed pair */ }
   }
-  _build(){
-    this.container.innerHTML='';
-    const W=this.container.clientWidth||860,H=this.container.clientHeight||440;
-    this.W=W;this.H=H;
-    this.canvas=document.createElement('canvas');
-    this.canvas.width=W;this.canvas.height=H;
-    this.canvas.style.cssText='display:block;cursor:default';
-    this.container.appendChild(this.canvas);
-    this.ctx=this.canvas.getContext('2d');
-    this.tip=document.createElement('div');
-    this.tip.style.cssText='position:absolute;background:#fff;color:#18181B;font:0.64rem/1.5 "Fira Code",monospace;padding:.4rem .85rem;border-radius:8px;border:1px solid rgba(0,0,0,0.12);pointer-events:none;display:none;z-index:20;box-shadow:0 4px 16px rgba(0,0,0,0.1);max-width:240px;white-space:normal';
-    this.container.style.position='relative';
-    this.container.appendChild(this.tip);
-    const N=this.drugs.length,cx=W/2,cy=H/2,R=Math.min(W,H)*0.3;
-    this.nodes=this.drugs.map((id,i)=>{
-      const ang=-Math.PI/2+(2*Math.PI*i)/N;
-      return{id,label:id,x:cx+R*Math.cos(ang),y:cy+R*Math.sin(ang),vx:0,vy:0,fixed:false};
-    });
-    this.edges=this.pairs.filter(p=>p.status!=='error').map(p=>{
-      const ai=this.drugs.indexOf(p.drug_a_id),bi=this.drugs.indexOf(p.drug_b_id);
-      if(ai<0||bi<0)return null;
-      return{from:p.drug_a_id,to:p.drug_b_id,interaction:p.is_interaction,confidence:p.confidence||0,label:p.top_prediction||''};
-    }).filter(Boolean);
-    this.nodeMap={};this.nodes.forEach(n=>this.nodeMap[n.id]=n);
-    this._animate=this._animate.bind(this);this._bindEvents();
-    this.frame=0;this.MAX=220;requestAnimationFrame(this._animate);
-  }
-  _animate(){if(this.frame++<this.MAX)requestAnimationFrame(this._animate);this._tick();this._draw()}
-  _tick(){
-    const REPEL=3500,SPRING=0.022,IDEAL=Math.min(this.W,this.H)*0.28,DAMP=0.78;
-    for(let i=0;i<this.nodes.length;i++)for(let j=i+1;j<this.nodes.length;j++){
-      const a=this.nodes[i],b=this.nodes[j];
-      const dx=b.x-a.x||.1,dy=b.y-a.y||.1,d2=dx*dx+dy*dy||1,d=Math.sqrt(d2);
-      const f=REPEL/d2,fx=dx/d*f,fy=dy/d*f;
-      if(!a.fixed){a.vx-=fx;a.vy-=fy}if(!b.fixed){b.vx+=fx;b.vy+=fy}
+
+  // Ensure all input drugs appear as nodes even if subgraph didn't include them
+  drugs.forEach((id,i)=>{
+    if(!nodeMap[id]){
+      nodeMap[id]={id, label:id, type:`drug_slot_${i}`, meta:'Input drug'};
     }
-    this.edges.forEach(e=>{
-      const a=this.nodeMap[e.from],b=this.nodeMap[e.to];if(!a||!b)return;
-      const dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||1;
-      const f=(d-IDEAL)*SPRING,fx=dx/d*f,fy=dy/d*f;
-      if(!a.fixed){a.vx+=fx;a.vy+=fy}if(!b.fixed){b.vx-=fx;b.vy-=fy}
-    });
-    const CX=this.W/2,CY=this.H/2;
-    this.nodes.forEach(n=>{
-      if(n.fixed)return;
-      n.vx+=(CX-n.x)*.004;n.vy+=(CY-n.y)*.004;
-      n.x+=n.vx;n.y+=n.vy;n.vx*=DAMP;n.vy*=DAMP;
-      const pad=28;n.x=Math.max(pad,Math.min(this.W-pad,n.x));n.y=Math.max(pad,Math.min(this.H-pad,n.y));
-    });
+  });
+
+  const allNodes=Object.values(nodeMap);
+
+  // Build merged color/radius maps for ForceGraph
+  const nodeColor={
+    protein:'#F59E0B', atc:'#10B981', disease:'#EF4444',
+    effect:'#94A3B8', shared:'#F5A623', default:'#94A3B8',
+    ...slotColors
+  };
+  const nodeRadius={
+    protein:8, atc:7, disease:7, effect:6, shared:14, default:7,
+    ...slotRadius
+  };
+
+  wrap.innerHTML='';
+  new ForceGraph(wrap, allNodes, allEdges, {nodeColor, nodeRadius, bgColor:'#F7F5F0'});
+
+  // Build legend for drug slots
+  const legendWrap=document.getElementById('matrix-subgraph-legend');
+  if(legendWrap){
+    legendWrap.innerHTML=drugs.map((id,i)=>{
+      const col=DRUG_SLOT_COLORS[i%DRUG_SLOT_COLORS.length];
+      return `<span class="legend-item"><span class="legend-dot" style="background:${col}"></span>${id}</span>`;
+    }).join('')+`
+      <span class="legend-item"><span class="legend-dot" style="background:#F5A623"></span>Shared node</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#F59E0B"></span>Protein</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#10B981"></span>ATC</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#EF4444"></span>Disease</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#94A3B8"></span>Effect</span>`;
   }
-  _draw(){
-    const ctx=this.ctx,W=this.W,H=this.H;
-    ctx.clearRect(0,0,W,H);
-    ctx.fillStyle='#F7F5F0';ctx.fillRect(0,0,W,H);
-    // dot grid
-    ctx.fillStyle='rgba(0,0,0,0.05)';
-    for(let x=30;x<W;x+=50)for(let y=30;y<H;y+=50){ctx.beginPath();ctx.arc(x,y,0.7,0,Math.PI*2);ctx.fill()}
-    // edges
-    this.edges.forEach(e=>{
-      const a=this.nodeMap[e.from],b=this.nodeMap[e.to];if(!a||!b)return;
-      const col=e.interaction?'#C5183B':'#0A7C71';
-      const alpha=0.2+e.confidence*0.55;
-      const grad=ctx.createLinearGradient(a.x,a.y,b.x,b.y);
-      grad.addColorStop(0,col+(Math.round(alpha*255).toString(16).padStart(2,'0')));
-      grad.addColorStop(0.5,col+(Math.round(Math.min(1,alpha*1.3)*255).toString(16).padStart(2,'0')));
-      grad.addColorStop(1,col+(Math.round(alpha*255).toString(16).padStart(2,'0')));
-      ctx.save();ctx.strokeStyle=grad;
-      ctx.lineWidth=e.interaction?Math.max(1.5,e.confidence*4):Math.max(0.8,e.confidence*2);
-      ctx.setLineDash(e.interaction?[]:[5,4]);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore();
-      // confidence label
-      if(e.confidence>0){
-        const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,pct=(e.confidence*100).toFixed(0)+'%';
-        ctx.save();ctx.font='500 9px Fira Code,monospace';ctx.fillStyle=col+'CC';ctx.textAlign='center';ctx.textBaseline='middle';
-        const tw=ctx.measureText(pct).width;
-        ctx.fillStyle='rgba(247,245,240,0.9)';ctx.beginPath();
-        if(ctx.roundRect)ctx.roundRect(mx-tw/2-4,my-8,tw+8,16,4);else ctx.rect(mx-tw/2-4,my-8,tw+8,16);
-        ctx.fill();ctx.fillStyle=col+'EE';ctx.fillText(pct,mx,my);ctx.restore();
-      }
-    });
-    // nodes
-    const COLORS=['#0A7C71','#4F46E5','#F5A623','#10B981','#C5183B','#F59E0B','#EC4899','#8B5CF6','#06B6D4','#84CC16'];
-    this.nodes.forEach((n,i)=>{
-      const col=COLORS[i%COLORS.length],sz=20;
-      const nInt=this.edges.filter(e=>(e.from===n.id||e.to===n.id)&&e.interaction).length;
-      const danger=nInt>0;
-      const rgb={r:parseInt(col.slice(1,3),16),g:parseInt(col.slice(3,5),16),b:parseInt(col.slice(5,7),16)};
-      // glow
-      const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,sz*3);
-      g.addColorStop(0,`rgba(${rgb.r},${rgb.g},${rgb.b},0.15)`);g.addColorStop(1,`rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
-      ctx.beginPath();ctx.arc(n.x,n.y,sz*3,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-      // pulse danger ring
-      if(danger){
-        const pulse=Math.sin(Date.now()/600+i)*0.35+0.45;
-        ctx.beginPath();ctx.arc(n.x,n.y,sz+7,0,Math.PI*2);
-        ctx.strokeStyle=`rgba(197,24,59,${pulse*0.7})`;ctx.lineWidth=2;ctx.stroke();
-      }
-      // white shadow ring
-      ctx.save();ctx.shadowColor='rgba(0,0,0,0.12)';ctx.shadowBlur=8;ctx.shadowOffsetY=2;
-      ctx.beginPath();ctx.arc(n.x,n.y,sz+2.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.restore();
-      // main
-      const ng=ctx.createRadialGradient(n.x-sz*.3,n.y-sz*.3,0,n.x,n.y,sz);
-      ng.addColorStop(0,col);ng.addColorStop(1,`rgba(${Math.max(0,rgb.r-40)},${Math.max(0,rgb.g-40)},${Math.max(0,rgb.b-40)},0.85)`);
-      ctx.beginPath();ctx.arc(n.x,n.y,sz,0,Math.PI*2);ctx.fillStyle=ng;ctx.fill();
-      ctx.strokeStyle=col+'88';ctx.lineWidth=1.5;ctx.stroke();
-      // specular
-      ctx.beginPath();ctx.arc(n.x-sz*.28,n.y-sz*.32,sz*.3,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.32)';ctx.fill();
-      // interaction badge
-      if(nInt>0){
-        ctx.beginPath();ctx.arc(n.x+sz*.65,n.y-sz*.65,8,0,Math.PI*2);ctx.fillStyle='#C5183B';ctx.fill();
-        ctx.font='bold 8px Plus Jakarta Sans,sans-serif';ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillText(nInt,n.x+sz*.65,n.y-sz*.65);
-      }
-      // label
-      ctx.save();ctx.font='600 10px Plus Jakarta Sans,sans-serif';ctx.fillStyle=col;
-      ctx.textAlign='center';ctx.textBaseline='top';
-      ctx.shadowColor='rgba(255,255,255,0.9)';ctx.shadowBlur=4;
-      ctx.fillText(n.label.slice(0,10)+(n.label.length>10?'…':''),n.x,n.y+sz+5);ctx.restore();
-    });
-  }
-  _bindEvents(){
-    let drag=null;
-    this.canvas.addEventListener('mousemove',e=>{
-      const rc=this.canvas.getBoundingClientRect(),mx=e.clientX-rc.left,my=e.clientY-rc.top;
-      if(drag){drag.x=mx;drag.y=my;drag.vx=drag.vy=0;if(this.frame>=this.MAX){this.frame=this.MAX-20;requestAnimationFrame(this._animate)}return}
-      let hit=null;
-      for(const n of this.nodes)if((mx-n.x)**2+(my-n.y)**2<=28*28){hit=n;break}
-      if(hit){
-        this.tip.style.display='block';this.tip.style.left=(mx+14)+'px';this.tip.style.top=(my-10)+'px';
-        const ints=this.edges.filter(e=>(e.from===hit.id||e.to===hit.id)&&e.interaction);
-        const safe=this.edges.filter(e=>(e.from===hit.id||e.to===hit.id)&&!e.interaction);
-        this.tip.innerHTML=`<b style="color:var(--teal)">${hit.id}</b><br/><span style="color:var(--rose)">⚠ ${ints.length} interaction${ints.length!==1?'s':''}</span> · <span style="color:var(--teal)">✓ ${safe.length} safe</span>`;
-        this.canvas.style.cursor='pointer';
-        if(this.frame>=this.MAX){this.frame=this.MAX-40;requestAnimationFrame(this._animate)}
-      }else{this.tip.style.display='none';this.canvas.style.cursor='default'}
-    });
-    this.canvas.addEventListener('mouseleave',()=>{this.tip.style.display='none'});
-    this.canvas.addEventListener('mousedown',e=>{
-      const rc=this.canvas.getBoundingClientRect(),mx=e.clientX-rc.left,my=e.clientY-rc.top;
-      for(const n of this.nodes)if((mx-n.x)**2+(my-n.y)**2<=28*28){drag=n;n.fixed=true;if(this.frame>=this.MAX){this.frame=this.MAX-80;requestAnimationFrame(this._animate)}break}
-    });
-    window.addEventListener('mousemove',e=>{if(!drag)return;const rc=this.canvas.getBoundingClientRect();drag.x=e.clientX-rc.left;drag.y=e.clientY-rc.top;drag.vx=drag.vy=0});
-    window.addEventListener('mouseup',()=>{if(drag){drag.fixed=false;drag=null}});
-  }
-  resume(f=60){this.frame=Math.max(0,this.MAX-f);requestAnimationFrame(this._animate)}
 }
 
 // ════════════════════════════════
@@ -1516,13 +1509,13 @@ function renderMatrix(data){
         <button class="tab-btn" onclick="switchTab(this,'tab-table')">Ranked Table</button>
       </div>
       <div class="tab-content active" id="tab-subgraph">
-        <div style="font-family:var(--mono);font-size:.6rem;color:var(--ink3);margin-bottom:.7rem;display:flex;gap:1.5rem;flex-wrap:wrap">
+        <div style="font-family:var(--mono);font-size:.6rem;color:var(--ink3);margin-bottom:.55rem;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center">
           <span>Drag nodes · Hover for details</span>
-          <span style="display:flex;align-items:center;gap:.35rem"><span style="width:18px;height:2.5px;background:var(--rose);border-radius:2px;display:inline-block"></span>Interaction</span>
+          <span style="display:flex;align-items:center;gap:.35rem"><span style="width:18px;height:2px;background:var(--rose);border-radius:2px;display:inline-block"></span>Interaction edge</span>
           <span style="display:flex;align-items:center;gap:.35rem"><span style="width:18px;height:0;border-top:2px dashed var(--teal);display:inline-block"></span>Safe</span>
-          <span style="display:flex;align-items:center;gap:.35rem"><span style="width:12px;height:12px;border-radius:50%;background:var(--rose);display:inline-block;vertical-align:middle"></span>Has interactions</span>
         </div>
-        <div class="graph-wrap" id="matrix-subgraph-wrap" style="height:440px"></div>
+        <div class="graph-wrap" id="matrix-subgraph-wrap" style="height:500px"></div>
+        <div class="graph-legend" id="matrix-subgraph-legend" style="margin-top:.75rem"></div>
       </div>
       <div class="tab-content" id="tab-heatmap">
         ${grid}
@@ -1544,7 +1537,7 @@ function renderMatrix(data){
           </tr>`).join('')}</tbody></table></div>
       </div>
     </div>`;
-  setTimeout(()=>{const wrap=document.getElementById('matrix-subgraph-wrap');if(wrap&&drugs.length>=2)new MatrixSubgraph(wrap,drugs,pairs)},60);
+  setTimeout(()=>{const wrap=document.getElementById('matrix-subgraph-wrap');if(wrap&&drugs.length>=2)buildMatrixKnowledgeSubgraph(wrap,drugs,pairs)},60);
 }
 function switchTab(btn,targetId){
   const parent=btn.closest('.card');
@@ -1552,7 +1545,7 @@ function switchTab(btn,targetId){
   parent.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
   btn.classList.add('active');
   const t=document.getElementById(targetId);if(t)t.classList.add('active');
-  if(targetId==='tab-subgraph'){const w=document.getElementById('matrix-subgraph-wrap');if(w&&w._graph)w._graph.resume(60)}
+  // subgraph auto-renders on load
 }
 
 // ════════════════════════════════

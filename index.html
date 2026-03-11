@@ -203,7 +203,7 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1rem 0.7
 /* ═══════════════════════════════
    DRUG SELECTOR
 ═══════════════════════════════ */
-.drug-selector-wrap{position:relative}
+.drug-selector-wrap{position:relative;isolation:isolate}
 .drug-selector-label{
   display:block;font-family:var(--mono);font-size:0.58rem;
   letter-spacing:0.2em;text-transform:uppercase;
@@ -226,19 +226,19 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1rem 0.7
   box-shadow:0 0 0 3px rgba(10,124,113,0.12),inset 0 1px 3px rgba(0,0,0,0.04);
 }
 .drug-control-arrow{
-  position:absolute;right:0.9rem;top:50%;transform:translateY(-50%);
+  position:absolute;right:0.9rem;top:2.55rem;
   font-size:0.65rem;color:var(--ink3);pointer-events:none;
   transition:transform 0.15s;
 }
-.drug-control-arrow.open{transform:translateY(-50%) rotate(180deg)}
+.drug-control-arrow.open{transform:rotate(180deg)}
 .drug-panel{
   display:none;
-  position:absolute;top:calc(100% + 6px);left:0;right:0;
+  position:fixed;
   background:#FFFFFF;
   border:1.5px solid var(--border2);
   border-radius:14px;
-  z-index:9999;
-  box-shadow:0 8px 32px rgba(0,0,0,0.16),0 2px 8px rgba(0,0,0,0.08);
+  z-index:99999;
+  box-shadow:0 12px 40px rgba(0,0,0,0.22),0 2px 8px rgba(0,0,0,0.10);
   overflow:hidden;max-height:280px;
   flex-direction:column;
 }
@@ -510,7 +510,7 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1rem 0.7
     You can also use a free stock video URL, e.g.:
     <source src="https://cdn.coverr.co/videos/coverr-medical-laboratory-2888/1080p.mp4" type="video/mp4">
   -->
-  <source src="https://www.shutterstock.com/shutterstock/videos/3934105123/preview/stock-footage-blue-green-pill-capsules-isolated-analgesic-pile-painkiller-drugs-sedative-pills-group-medicine.webm" type="video/webm">
+  <source src="https://cdn.coverr.co/videos/coverr-a-person-looking-at-molecules-on-the-screen-of-a-computer-5396/1080p.mp4" type="video/mp4">
 </video>
 
 <!-- STREAM OVERLAY -->
@@ -828,38 +828,77 @@ class ForceGraph{
     this.nodes.forEach(n=>{
       const col=this.opts.nodeColor[n.type]||this.opts.nodeColor.default;
       const sz=this.opts.nodeRadius[n.type]||this.opts.nodeRadius.default||7;
-      const isMain=n.type==='drug_a'||n.type==='drug_b';
+      const isMain=n.type==='drug_a'||n.type==='drug_b'||/^drug_slot_/.test(n.type||'');
       const rgb=this._hexToRgb(col);
+
+      // Outer glow for main/shared nodes
       if(isMain||n.type==='shared'){
-        const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,sz*2.8);
-        g.addColorStop(0,`rgba(${rgb.r},${rgb.g},${rgb.b},0.18)`);
+        const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,sz*3.2);
+        g.addColorStop(0,`rgba(${rgb.r},${rgb.g},${rgb.b},0.22)`);
         g.addColorStop(1,`rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
-        ctx.beginPath();ctx.arc(n.x,n.y,sz*2.8,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+        ctx.beginPath();ctx.arc(n.x,n.y,sz*3.2,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
       }
-      ctx.save();ctx.shadowColor='rgba(0,0,0,0.12)';ctx.shadowBlur=8;ctx.shadowOffsetY=2;
-      ctx.beginPath();ctx.arc(n.x,n.y,sz+2.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+
+      // White border ring
+      ctx.save();
+      ctx.shadowColor='rgba(0,0,0,0.18)';ctx.shadowBlur=10;ctx.shadowOffsetY=3;
+      ctx.beginPath();ctx.arc(n.x,n.y,sz+3,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,0.95)';ctx.fill();
       ctx.restore();
-      const ng=ctx.createRadialGradient(n.x-sz*.3,n.y-sz*.3,0,n.x,n.y,sz);
-      ng.addColorStop(0,col);ng.addColorStop(1,`rgba(${Math.max(0,rgb.r-30)},${Math.max(0,rgb.g-30)},${Math.max(0,rgb.b-30)},0.85)`);
-      ctx.beginPath();ctx.arc(n.x,n.y,sz,0,Math.PI*2);ctx.fillStyle=ng;ctx.fill();
-      ctx.strokeStyle=col+'AA';ctx.lineWidth=1.5;ctx.stroke();
-      ctx.beginPath();ctx.arc(n.x-sz*.28,n.y-sz*.3,sz*.32,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.35)';ctx.fill();
-      // label: name + id (two lines for main drug nodes)
+
+      // Main node fill — rich gradient
+      const ng=ctx.createRadialGradient(n.x-sz*.35,n.y-sz*.35,0,n.x+sz*.2,n.y+sz*.2,sz*1.6);
+      ng.addColorStop(0,`rgba(${Math.min(255,rgb.r+50)},${Math.min(255,rgb.g+50)},${Math.min(255,rgb.b+50)},1)`);
+      ng.addColorStop(0.5,col);
+      ng.addColorStop(1,`rgba(${Math.max(0,rgb.r-40)},${Math.max(0,rgb.g-40)},${Math.max(0,rgb.b-40)},0.9)`);
+      ctx.beginPath();ctx.arc(n.x,n.y,sz,0,Math.PI*2);
+      ctx.fillStyle=ng;ctx.fill();
+
+      // Colored border
+      ctx.strokeStyle=col;ctx.lineWidth=isMain?2:1.2;
+      ctx.globalAlpha=0.7;ctx.stroke();ctx.globalAlpha=1;
+
+      // Shine highlight
+      const shine=ctx.createRadialGradient(n.x-sz*.3,n.y-sz*.38,0,n.x-sz*.1,n.y-sz*.1,sz*.7);
+      shine.addColorStop(0,'rgba(255,255,255,0.55)');
+      shine.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.beginPath();ctx.arc(n.x,n.y,sz,0,Math.PI*2);
+      ctx.fillStyle=shine;ctx.fill();
+
+      // Label below node
       const rawLbl=n.label||'';
       const isDbId=/^DB\d{5}$/.test(n.id||'');
       const showId=isMain&&isDbId&&rawLbl!==n.id;
       const lbl=rawLbl.length>16?rawLbl.slice(0,15)+'…':rawLbl;
-      ctx.save();
-      ctx.font=isMain?`600 ${sz>=16?11:9}px Plus Jakarta Sans,sans-serif`:`${sz>=10?9:8}px Plus Jakarta Sans,sans-serif`;
-      ctx.fillStyle=isMain?col:'#52525B';ctx.textAlign='center';ctx.textBaseline='top';
-      ctx.shadowColor='rgba(255,255,255,0.9)';ctx.shadowBlur=3;
-      ctx.fillText(lbl,n.x,n.y+sz+4);
-      if(showId){
-        ctx.font=`${sz>=16?9:8}px Fira Code,monospace`;
-        ctx.fillStyle='rgba(82,82,91,0.7)';
-        ctx.fillText(n.id,n.x,n.y+sz+16);
+
+      // Label background pill
+      if(lbl){
+        const fontSize=isMain?(sz>=16?11:10):(sz>=10?9:8);
+        ctx.font=isMain?`700 ${fontSize}px Plus Jakarta Sans,sans-serif`:`500 ${fontSize}px Plus Jakarta Sans,sans-serif`;
+        const tw=ctx.measureText(lbl).width;
+        const lx=n.x-tw/2-4, ly=n.y+sz+5;
+        const lh=fontSize+6;
+        ctx.save();
+        ctx.fillStyle='rgba(255,255,255,0.88)';
+        ctx.beginPath();
+        ctx.roundRect?ctx.roundRect(lx,ly,tw+8,lh,4):ctx.rect(lx,ly,tw+8,lh);
+        ctx.fill();
+        ctx.fillStyle=isMain?col:'#3F3F46';
+        ctx.textAlign='center';ctx.textBaseline='top';
+        ctx.fillText(lbl,n.x,ly+3);
+        if(showId){
+          ctx.font=`400 ${sz>=16?9:8}px Fira Code,monospace`;
+          const iw=ctx.measureText(n.id).width;
+          const iy=ly+lh+2;
+          ctx.fillStyle='rgba(255,255,255,0.82)';
+          ctx.beginPath();
+          ctx.roundRect?ctx.roundRect(n.x-iw/2-3,iy,iw+6,13,3):ctx.rect(n.x-iw/2-3,iy,iw+6,13);
+          ctx.fill();
+          ctx.fillStyle='rgba(82,82,91,0.85)';
+          ctx.fillText(n.id,n.x,iy+2);
+        }
+        ctx.restore();
       }
-      ctx.restore();
     });
   }
   _bindEvents(){
@@ -871,7 +910,7 @@ class ForceGraph{
       for(const n of this.nodes){const sz=(this.opts.nodeRadius[n.type]||7)+5;if((mx-n.x)**2+(my-n.y)**2<=sz*sz){hit=n;break}}
       if(hit){
         this.tip.style.display='block';this.tip.style.left=(mx+12)+'px';this.tip.style.top=(my-8)+'px';
-        this.tip.innerHTML=`<b style="color:var(--teal)">${hit.label||hit.id}</b>${hit.meta?`<br/><span style="color:var(--ink3)">${hit.meta}</span>`:''}`;
+        this.tip.innerHTML=`<b style="color:var(--teal)">${hit.label||hit.id}</b>${(hit.id&&hit.label&&hit.id!==hit.label)?`<br/><span style="color:var(--ink3);font-size:.58rem">${hit.id}</span>`:''}${hit.meta?`<br/><span style="color:var(--ink3)">${hit.meta}</span>`:''}`;
         this.canvas.style.cursor='pointer';
       }else{this.tip.style.display='none';this.canvas.style.cursor='default'}
     });
@@ -1099,6 +1138,20 @@ class DrugSelector{
   toggle(){this.open?this.close():this.openPanel()}
   openPanel(){
     this.open=true;this.panelEl.classList.add('open');this.ctrlEl.classList.add('open');this.arrEl.classList.add('open');
+    // Position using fixed coords so it always appears on top
+    const rc=this.ctrlEl.getBoundingClientRect();
+    const panelW=Math.max(rc.width,260);
+    this.panelEl.style.width=panelW+'px';
+    this.panelEl.style.left=rc.left+'px';
+    // Flip up if not enough room below
+    const spaceBelow=window.innerHeight-rc.bottom-8;
+    if(spaceBelow<200){
+      this.panelEl.style.top='';
+      this.panelEl.style.bottom=(window.innerHeight-rc.top+4)+'px';
+    } else {
+      this.panelEl.style.bottom='';
+      this.panelEl.style.top=(rc.bottom+4)+'px';
+    }
     this.searchEl.value='';this._fill('');
     setTimeout(()=>this.searchEl.focus(),60);
     document.addEventListener('click',this._clickout);
@@ -1419,15 +1472,11 @@ function renderMatrix(data){
       </div>
 
       <div class="tab-content" id="tab-pairwise">
-        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap">
-          <label style="font-family:var(--mono);font-size:.6rem;color:var(--ink3);white-space:nowrap">Select pair:</label>
-          <select id="pairwise-select" onchange="loadPairwiseGraph()" style="flex:1;min-width:200px;padding:.5rem .75rem;border:1.5px solid var(--border2);border-radius:8px;font-family:var(--mono);font-size:.72rem;background:#fff;color:var(--ink);outline:none">${pairOptions}</select>
-          <button class="btn btn-outline btn-sm" onclick="loadPairwiseGraph()">Load Graph</button>
-        </div>
+        <div id="pairwise-pair-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.65rem;margin-bottom:1rem"></div>
         <div class="graph-wrap" id="pairwise-graph-wrap" style="height:460px">
           <div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:.75rem;opacity:.4">
             <svg width="44" height="44" viewBox="0 0 52 52" fill="none"><circle cx="12" cy="12" r="6" stroke="#0A7C71" stroke-width="2"/><circle cx="40" cy="12" r="6" stroke="#0A7C71" stroke-width="2"/><line x1="17" y1="14" x2="35" y2="14" stroke="#0A7C71" stroke-width="1.5"/></svg>
-            <span style="font-family:var(--mono);font-size:.72rem;color:var(--ink3)">Select a pair above and click Load Graph</span>
+            <span style="font-family:var(--mono);font-size:.72rem;color:var(--ink3)">Select a pair above to view its subgraph</span>
           </div>
         </div>
         <div class="graph-legend" id="pairwise-graph-legend" style="margin-top:.75rem"></div>
@@ -1462,7 +1511,39 @@ function renderMatrix(data){
 
   // store pairs for pairwise graph
   window._matrixPairs=pairs;
-  setTimeout(()=>{const wrap=document.getElementById('matrix-subgraph-wrap');if(wrap&&drugs.length>=2)buildMatrixKnowledgeSubgraph(wrap,drugs,pairs)},60);
+  // Render pair picker cards
+  setTimeout(()=>{
+    const cardWrap=document.getElementById('pairwise-pair-cards');
+    if(cardWrap){
+      cardWrap.innerHTML=pairs.map((p,i)=>{
+        const na=getDrugLabel(p.drug_a_id)||p.drug_a_id;
+        const nb=getDrugLabel(p.drug_b_id)||p.drug_b_id;
+        const isInt=p.is_interaction;
+        const conf=p.confidence?(p.confidence*100).toFixed(0):'—';
+        const dot=isInt?'#C5183B':'#0A7C71';
+        const bg=isInt?'rgba(197,24,59,0.04)':'rgba(10,124,113,0.04)';
+        const bd=isInt?'rgba(197,24,59,0.18)':'rgba(10,124,113,0.18)';
+        return `<button onclick="loadPairwiseGraphByIdx(${i})" id="pair-card-${i}"
+          style="text-align:left;background:${bg};border:1.5px solid ${bd};border-radius:12px;
+          padding:.7rem .9rem;cursor:pointer;transition:all 0.15s;font-family:var(--sans);width:100%">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">
+            <span style="width:7px;height:7px;border-radius:50%;background:${dot};flex-shrink:0;display:inline-block"></span>
+            <span style="font-size:.68rem;font-weight:700;color:${dot};font-family:var(--mono);letter-spacing:.06em">
+              ${isInt?'INTERACTION':'SAFE'} · ${conf}%
+            </span>
+          </div>
+          <div style="font-size:.8rem;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:.15rem">
+            ${na.length>18?na.slice(0,17)+'…':na}
+            <span style="color:var(--ink3);font-weight:400"> × </span>
+            ${nb.length>18?nb.slice(0,17)+'…':nb}
+          </div>
+          <div style="font-size:.58rem;font-family:var(--mono);color:var(--ink3)">${p.drug_a_id} × ${p.drug_b_id}</div>
+        </button>`;
+      }).join('');
+    }
+    const wrap=document.getElementById('matrix-subgraph-wrap');
+    if(wrap&&drugs.length>=2)buildMatrixKnowledgeSubgraph(wrap,drugs,pairs);
+  },60);
 }
 function switchTab(btn,targetId){
   const parent=btn.closest('.card');
@@ -1475,13 +1556,17 @@ function switchTab(btn,targetId){
 // ════════════════════════════════
 // PAIRWISE SUBGRAPH LOADER
 // ════════════════════════════════
-async function loadPairwiseGraph(){
-  const sel=document.getElementById('pairwise-select');
+async function loadPairwiseGraphByIdx(idx){
   const pairs=window._matrixPairs;
-  if(!sel||!pairs)return;
-  const idx=parseInt(sel.value);
+  if(!pairs) return;
   const p=pairs[idx];
-  if(!p){return}
+  if(!p) return;
+  // Highlight selected card
+  document.querySelectorAll('[id^="pair-card-"]').forEach(c=>{
+    c.style.boxShadow='';c.style.transform='';c.style.borderWidth='1.5px';
+  });
+  const card=document.getElementById(`pair-card-${idx}`);
+  if(card){card.style.boxShadow='0 0 0 3px rgba(10,124,113,0.25)';card.style.transform='translateY(-1px)';card.style.borderWidth='2px';}
   const wrap=document.getElementById('pairwise-graph-wrap');
   const legend=document.getElementById('pairwise-graph-legend');
   wrap.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:.75rem"><div class="spinner"></div><span style="font-family:var(--mono);font-size:.72rem;color:var(--ink3)">Loading subgraph…</span></div>';
@@ -1512,6 +1597,8 @@ async function loadPairwiseGraph(){
     wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--mono);font-size:.72rem;color:var(--ink3)">⚠ ${e.message}</div>`;
   }
 }
+// Legacy alias
+function loadPairwiseGraph(){loadPairwiseGraphByIdx(0);}
 
 // ════════════════════════════════
 // EXPLORE

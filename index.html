@@ -449,16 +449,7 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1rem 0.7
 .heatmap-cell{transition:transform 0.1s,filter 0.1s;cursor:default}
 .heatmap-cell:hover{transform:scale(1.18);filter:brightness(1.15)}
 
-footer{
-  position:relative;z-index:2;text-align:center;
-  padding:1.5rem 0 1rem;
-  font-family:var(--mono);font-size:0.55rem;
-  color:var(--ink2);letter-spacing:0.2em;text-transform:uppercase;
-  border-top:1px solid rgba(255,255,255,0.3);margin-top:2rem;
-  background:rgba(247,245,240,0.7);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-}
-footer span{color:var(--teal)}
+/* footer: completely removed */
 
 /* ═══════════════════════════════
    MOBILE NAV HAMBURGER
@@ -519,7 +510,7 @@ footer span{color:var(--teal)}
     You can also use a free stock video URL, e.g.:
     <source src="https://cdn.coverr.co/videos/coverr-medical-laboratory-2888/1080p.mp4" type="video/mp4">
   -->
-  <source src="https://www.shutterstock.com/shutterstock/videos/3934105123/preview/stock-footage-blue-green-pill-capsules-isolated-analgesic-pile-painkiller-drugs-sedative-pills-group-medicine.webm" type="video/webm">
+  <source src="https://cdn.coverr.co/videos/coverr-a-person-looking-at-molecules-on-the-screen-of-a-computer-5396/1080p.mp4" type="video/mp4">
 </video>
 
 <!-- STREAM OVERLAY -->
@@ -705,7 +696,6 @@ DB00945,DB00682</pre>
 </div>
 
 </main>
-<footer>DDI Intelligence Platform <span>·</span> PyTorch Geometric <span>·</span> R-GCN <span>·</span> DrugBank 5.x</footer>
 
 <script>
 // ════════════════════════════════
@@ -724,7 +714,7 @@ function enrichNodes(nodes){
 }
 
 // ════════════════════════════════
-// FORCE GRAPH
+// STATIC GRAPH (pre-settled, no animation)
 // ════════════════════════════════
 class ForceGraph{
   constructor(container,nodes,edges,opts={}){
@@ -750,26 +740,31 @@ class ForceGraph{
     this.container.style.position='relative';
     this.container.appendChild(this.tip);
     this.ctx=this.canvas.getContext('2d');
+
+    // Place nodes using golden-angle sunflower spiral for good initial spread
     const phi=Math.PI*(3-Math.sqrt(5));
     this.nodes=this.rawNodes.map((n,i)=>{
-      const y=1-(i/Math.max(this.rawNodes.length-1,1))*2;
-      const r=Math.sqrt(Math.max(0,1-y*y));
-      const th=phi*i,R=Math.min(W,H)*0.28;
-      let x=W/2+Math.cos(th)*r*R,y2=H/2+y*R;
-      if(n.type==='drug_a'){x=W/2-90;y2=H/2}
-      if(n.type==='drug_b'){x=W/2+90;y2=H/2}
-      return{...n,x,y:y2,vx:0,vy:0,fixed:false};
+      const t=i/Math.max(this.rawNodes.length-1,1);
+      const r=Math.sqrt(t)*Math.min(W,H)*0.38;
+      const th=phi*i;
+      let x=W/2+Math.cos(th)*r, y=H/2+Math.sin(th)*r;
+      if(n.type==='drug_a'){x=W/2-Math.min(W,H)*0.22;y=H/2}
+      if(n.type==='drug_b'){x=W/2+Math.min(W,H)*0.22;y=H/2}
+      return{...n,x,y,vx:0,vy:0,fixed:false};
     });
     this.edges=this.rawEdges;
     this.nodeMap={};this.nodes.forEach(n=>this.nodeMap[n.id]=n);
-    this._animate=this._animate.bind(this);
+
+    // Run physics silently for many iterations to settle layout
+    for(let iter=0;iter<600;iter++) this._tick(iter);
+    // One final pass with zero velocity to freeze
+    this.nodes.forEach(n=>{n.vx=0;n.vy=0});
+    // Draw once, static
+    this._draw();
     this._bindEvents();
-    this.frame=0;this.MAX=300;
-    requestAnimationFrame(this._animate);
   }
-  _animate(){if(this.frame++<this.MAX)requestAnimationFrame(this._animate);this._tick();this._draw()}
-  _tick(){
-    const REPEL=5500,SPRING=0.038,IDEAL=100,DAMP=0.80;
+  _tick(iter){
+    const REPEL=4800, SPRING=0.042, IDEAL=95, DAMP=iter<100?0.45:iter<300?0.6:0.72;
     for(let i=0;i<this.nodes.length;i++)for(let j=i+1;j<this.nodes.length;j++){
       const a=this.nodes[i],b=this.nodes[j];
       const dx=b.x-a.x||.1,dy=b.y-a.y||.1,d2=dx*dx+dy*dy||1,d=Math.sqrt(d2);
@@ -786,9 +781,9 @@ class ForceGraph{
     const CX=this.W/2,CY=this.H/2;
     this.nodes.forEach(n=>{
       if(n.fixed)return;
-      n.vx+=(CX-n.x)*.003;n.vy+=(CY-n.y)*.003;
+      n.vx+=(CX-n.x)*.002;n.vy+=(CY-n.y)*.002;
       n.x+=n.vx;n.y+=n.vy;n.vx*=DAMP;n.vy*=DAMP;
-      const pad=(this.opts.nodeRadius[n.type]||8)+4;
+      const pad=(this.opts.nodeRadius[n.type]||8)+6;
       n.x=Math.max(pad,Math.min(this.W-pad,n.x));
       n.y=Math.max(pad,Math.min(this.H-pad,n.y));
     });
@@ -798,8 +793,10 @@ class ForceGraph{
     const ctx=this.ctx,W=this.W,H=this.H;
     ctx.clearRect(0,0,W,H);
     ctx.fillStyle=this.opts.bgColor;ctx.fillRect(0,0,W,H);
+    // subtle dot grid
     ctx.fillStyle='rgba(0,0,0,0.04)';
     for(let x=30;x<W;x+=50)for(let y=30;y<H;y+=50){ctx.beginPath();ctx.arc(x,y,0.8,0,Math.PI*2);ctx.fill()}
+    // edges
     this.edges.forEach(e=>{
       const a=this.nodeMap[e.from||e.source],b=this.nodeMap[e.to||e.target];
       if(!a||!b)return;
@@ -809,6 +806,7 @@ class ForceGraph{
       ctx.save();ctx.strokeStyle=grad;ctx.lineWidth=e.weight?Math.max(0.8,e.weight*2.5):1.2;
       ctx.setLineDash(e.dashed?[5,4]:[]);ctx.globalAlpha=0.75;
       ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore();
+      // arrowhead
       const ang=Math.atan2(b.y-a.y,b.x-a.x),sz=(this.opts.nodeRadius[b.type]||7)+4;
       const tx=b.x-sz*Math.cos(ang),ty=b.y-sz*Math.sin(ang);
       ctx.save();ctx.fillStyle=col;ctx.globalAlpha=0.6;
@@ -826,6 +824,7 @@ class ForceGraph{
         ctx.fillText(e.label,0,-5);ctx.restore();
       }
     });
+    // nodes
     this.nodes.forEach(n=>{
       const col=this.opts.nodeColor[n.type]||this.opts.nodeColor.default;
       const sz=this.opts.nodeRadius[n.type]||this.opts.nodeRadius.default||7;
@@ -833,7 +832,7 @@ class ForceGraph{
       const rgb=this._hexToRgb(col);
       if(isMain||n.type==='shared'){
         const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,sz*2.8);
-        g.addColorStop(0,`rgba(${rgb.r},${rgb.g},${rgb.b},0.2)`);
+        g.addColorStop(0,`rgba(${rgb.r},${rgb.g},${rgb.b},0.18)`);
         g.addColorStop(1,`rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
         ctx.beginPath();ctx.arc(n.x,n.y,sz*2.8,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
       }
@@ -845,37 +844,51 @@ class ForceGraph{
       ctx.beginPath();ctx.arc(n.x,n.y,sz,0,Math.PI*2);ctx.fillStyle=ng;ctx.fill();
       ctx.strokeStyle=col+'AA';ctx.lineWidth=1.5;ctx.stroke();
       ctx.beginPath();ctx.arc(n.x-sz*.28,n.y-sz*.3,sz*.32,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.35)';ctx.fill();
-      const lbl=n.label&&n.label.length>14?n.label.slice(0,13)+'…':n.label||'';
+      // label: name + id (two lines for main drug nodes)
+      const rawLbl=n.label||'';
+      const isDbId=/^DB\d{5}$/.test(n.id||'');
+      const showId=isMain&&isDbId&&rawLbl!==n.id;
+      const lbl=rawLbl.length>16?rawLbl.slice(0,15)+'…':rawLbl;
       ctx.save();
       ctx.font=isMain?`600 ${sz>=16?11:9}px Plus Jakarta Sans,sans-serif`:`${sz>=10?9:8}px Plus Jakarta Sans,sans-serif`;
       ctx.fillStyle=isMain?col:'#52525B';ctx.textAlign='center';ctx.textBaseline='top';
       ctx.shadowColor='rgba(255,255,255,0.9)';ctx.shadowBlur=3;
-      ctx.fillText(lbl,n.x,n.y+sz+4);ctx.restore();
+      ctx.fillText(lbl,n.x,n.y+sz+4);
+      if(showId){
+        ctx.font=`${sz>=16?9:8}px Fira Code,monospace`;
+        ctx.fillStyle='rgba(82,82,91,0.7)';
+        ctx.fillText(n.id,n.x,n.y+sz+16);
+      }
+      ctx.restore();
     });
   }
   _bindEvents(){
     let drag=null;
     this.canvas.addEventListener('mousemove',e=>{
       const rc=this.canvas.getBoundingClientRect(),mx=e.clientX-rc.left,my=e.clientY-rc.top;
-      if(drag){drag.x=mx;drag.y=my;drag.vx=drag.vy=0;if(this.frame>=this.MAX){this.frame=this.MAX-20;requestAnimationFrame(this._animate)}return}
+      if(drag){drag.x=mx;drag.y=my;drag.vx=drag.vy=0;this._draw();return}
       let hit=null;
       for(const n of this.nodes){const sz=(this.opts.nodeRadius[n.type]||7)+5;if((mx-n.x)**2+(my-n.y)**2<=sz*sz){hit=n;break}}
       if(hit){
         this.tip.style.display='block';this.tip.style.left=(mx+12)+'px';this.tip.style.top=(my-8)+'px';
         this.tip.innerHTML=`<b style="color:var(--teal)">${hit.label||hit.id}</b>${hit.meta?`<br/><span style="color:var(--ink3)">${hit.meta}</span>`:''}`;
         this.canvas.style.cursor='pointer';
-        if(this.frame>=this.MAX){this.frame=this.MAX-40;requestAnimationFrame(this._animate)}
       }else{this.tip.style.display='none';this.canvas.style.cursor='default'}
     });
     this.canvas.addEventListener('mouseleave',()=>{this.tip.style.display='none'});
     this.canvas.addEventListener('mousedown',e=>{
       const rc=this.canvas.getBoundingClientRect(),mx=e.clientX-rc.left,my=e.clientY-rc.top;
-      for(const n of this.nodes){const sz=(this.opts.nodeRadius[n.type]||7)+5;if((mx-n.x)**2+(my-n.y)**2<=sz*sz){drag=n;n.fixed=true;if(this.frame>=this.MAX){this.frame=this.MAX-80;requestAnimationFrame(this._animate)}break}}
+      for(const n of this.nodes){const sz=(this.opts.nodeRadius[n.type]||7)+5;if((mx-n.x)**2+(my-n.y)**2<=sz*sz){drag=n;n.fixed=true;break}}
     });
-    window.addEventListener('mousemove',e=>{if(!drag)return;const rc=this.canvas.getBoundingClientRect();drag.x=e.clientX-rc.left;drag.y=e.clientY-rc.top;drag.vx=drag.vy=0});
-    window.addEventListener('mouseup',()=>{if(drag){drag.fixed=false;drag=null}});
+    window.addEventListener('mousemove',e=>{
+      if(!drag)return;
+      const rc=this.canvas.getBoundingClientRect();
+      drag.x=e.clientX-rc.left;drag.y=e.clientY-rc.top;drag.vx=drag.vy=0;
+      this._draw();
+    });
+    window.addEventListener('mouseup',()=>{if(drag){drag.fixed=false;drag=null;this._draw()}});
   }
-  resume(f=80){this.frame=Math.max(0,this.MAX-f);requestAnimationFrame(this._animate)}
+  resume(){this._draw()}
 }
 
 // ════════════════════════════════
@@ -1015,7 +1028,11 @@ class DrugSelector{
     const wrap=document.createElement('div');wrap.className='drug-selector-wrap';
     const lbl=document.createElement('span');lbl.className='drug-selector-label';lbl.textContent=this.labelText;
     this.ctrlEl=document.createElement('div');this.ctrlEl.className='drug-control';this.ctrlEl.tabIndex=0;
-    this.ctrlEl.textContent=this.selected?this.selected.id:'— Select a drug —';
+    if(this.selected&&this.selected.name&&this.selected.name!==this.selected.id){
+      this.ctrlEl.innerHTML=`<span style="font-weight:600;color:var(--ink)">${this.selected.name}</span><span style="font-size:.72em;color:var(--ink3);font-weight:400"> (${this.selected.id})</span>`;
+    } else {
+      this.ctrlEl.textContent=this.selected?this.selected.id:'— Select a drug —';
+    }
     this.ctrlEl.style.color=this.selected?'var(--ink)':'var(--ink3)';
     this.arrEl=document.createElement('span');this.arrEl.className='drug-control-arrow';this.arrEl.textContent='▾';
     this.panelEl=document.createElement('div');this.panelEl.className='drug-panel';
@@ -1229,10 +1246,12 @@ function renderResult(r){
   const conf=(r.confidence*100).toFixed(2),isInt=r.is_interaction;
   const bcls=isInt?(r.confidence>.75?'badge-danger':'badge-warn'):'badge-safe';
   const btxt=isInt?(r.confidence>.75?'⚠ High Risk':'◎ Possible'):'✓ No Interaction';
+  const nameA=getDrugLabel(r.drug_a_id)||r.drug_a_name||r.drug_a_id;
+  const nameB=getDrugLabel(r.drug_b_id)||r.drug_b_name||r.drug_b_id;
   document.getElementById('predict-metrics').innerHTML=`
     <div class="metric ${isInt?'danger':'safe'}"><div class="metric-label">Status</div><div class="metric-value">${isInt?'Interaction':'Safe ✓'}</div></div>
-    <div class="metric"><div class="metric-label">Drug A</div><div class="metric-value" style="font-size:1rem">${r.drug_a_name||r.drug_a_id}</div><div class="metric-sub">${r.drug_a_id}</div></div>
-    <div class="metric"><div class="metric-label">Drug B</div><div class="metric-value" style="font-size:1rem">${r.drug_b_name||r.drug_b_id}</div><div class="metric-sub">${r.drug_b_id}</div></div>
+    <div class="metric"><div class="metric-label">Drug A</div><div class="metric-value" style="font-size:.9rem;line-height:1.2">${nameA}</div><div class="metric-sub">${r.drug_a_id}</div></div>
+    <div class="metric"><div class="metric-label">Drug B</div><div class="metric-value" style="font-size:.9rem;line-height:1.2">${nameB}</div><div class="metric-sub">${r.drug_b_id}</div></div>
     <div class="metric"><div class="metric-label">Confidence</div><div class="metric-value">${conf}%</div></div>
     <div class="metric"><div class="metric-label">Mode</div><div class="metric-value" style="font-size:.82rem">${r.embed_mode}</div></div>`;
   document.getElementById('result-main-card').className=`card result-card ${isInt?'danger-card':'safe-card'}`;
@@ -1347,10 +1366,13 @@ function renderMatrix(data){
   const ni=pairs.filter(p=>p.is_interaction).length;
   const mat={};pairs.forEach(p=>{mat[`${p.drug_a_id}|${p.drug_b_id}`]=p;mat[`${p.drug_b_id}|${p.drug_a_id}`]=p});
   const n=drugs.length,cs=Math.min(88,Math.floor(440/n));
+  // heatmap uses short name + ID
+  const drugLabel=id=>{const nm=getDrugLabel(id);return nm&&nm!==id?`${nm.slice(0,10)} (${id})`:id};
+  const drugShort=id=>{const nm=getDrugLabel(id);return nm&&nm!==id?nm.slice(0,8):id.slice(0,9)};
   let grid=`<div style="overflow-x:auto"><table style="border-collapse:separate;border-spacing:3px;margin:0 auto">`;
-  grid+='<tr><td style="width:70px"></td>'+drugs.map(d=>`<td style="padding:0 2px;text-align:center;font-family:var(--mono);font-size:.56rem;color:var(--ink3)">${d.slice(0,9)}</td>`).join('')+'</tr>';
+  grid+='<tr><td style="width:90px"></td>'+drugs.map(d=>`<td style="padding:0 2px;text-align:center;font-family:var(--mono);font-size:.52rem;color:var(--ink3)" title="${drugLabel(d)}">${drugShort(d)}</td>`).join('')+'</tr>';
   drugs.forEach(da=>{
-    grid+=`<tr><td style="padding:2px 6px 2px 0;font-family:var(--mono);font-size:.56rem;color:var(--ink3);text-align:right;white-space:nowrap">${da.slice(0,9)}</td>`;
+    grid+=`<tr><td style="padding:2px 6px 2px 0;font-family:var(--mono);font-size:.52rem;color:var(--ink3);text-align:right;white-space:nowrap" title="${drugLabel(da)}">${drugShort(da)}</td>`;
     drugs.forEach(db=>{
       if(da===db){grid+=`<td style="width:${cs}px;height:${cs}px;background:var(--bg3);border-radius:5px"></td>`}
       else{
@@ -1358,11 +1380,19 @@ function renderMatrix(data){
         const bg=p?.is_interaction?`rgba(197,24,59,${.12+pct*.008})`:`rgba(10,124,113,${.08+pct*.005})`;
         const tc=p?.is_interaction?'var(--rose)':'var(--teal)';
         const border=p?.is_interaction?`1px solid rgba(197,24,59,.3)`:`1px solid rgba(10,124,113,.2)`;
-        grid+=`<td class="heatmap-cell" title="${p?(p.top_prediction+' ('+pct.toFixed(1)+'%)'):'—'}" style="width:${cs}px;height:${cs}px;background:${bg};border-radius:5px;text-align:center;vertical-align:middle;font-family:var(--mono);font-size:.56rem;color:${tc};border:${border}">${p?pct.toFixed(0)+'%':'—'}</td>`;
+        grid+=`<td class="heatmap-cell" title="${drugShort(da)} × ${drugShort(db)}: ${p?(p.top_prediction+' '+pct.toFixed(1)+'%'):'—'}" style="width:${cs}px;height:${cs}px;background:${bg};border-radius:5px;text-align:center;vertical-align:middle;font-family:var(--mono);font-size:.56rem;color:${tc};border:${border}">${p?pct.toFixed(0)+'%':'—'}</td>`;
       }
     });grid+='</tr>';
   });grid+='</table></div>';
   const sorted=[...pairs].sort((a,b)=>(b.is_interaction-a.is_interaction)||(b.confidence-a.confidence));
+
+  // Build pairwise selector options
+  const pairOptions=pairs.map((p,i)=>{
+    const na=getDrugLabel(p.drug_a_id)||p.drug_a_id;
+    const nb=getDrugLabel(p.drug_b_id)||p.drug_b_id;
+    return `<option value="${i}">${na} (${p.drug_a_id}) × ${nb} (${p.drug_b_id})</option>`;
+  }).join('');
+
   document.getElementById('matrix-result').innerHTML=`
     <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
       <div class="metric"><div class="metric-label">Drugs</div><div class="metric-value">${drugs.length}</div></div>
@@ -1372,39 +1402,66 @@ function renderMatrix(data){
     </div>
     <div class="card">
       <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab(this,'tab-subgraph')">Drug Subgraph</button>
+        <button class="tab-btn active" onclick="switchTab(this,'tab-subgraph')">Full Subgraph</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-pairwise')">Pairwise Graph</button>
         <button class="tab-btn" onclick="switchTab(this,'tab-heatmap')">Heatmap</button>
         <button class="tab-btn" onclick="switchTab(this,'tab-table')">Ranked Table</button>
       </div>
+
       <div class="tab-content active" id="tab-subgraph">
         <div style="font-family:var(--mono);font-size:.6rem;color:var(--ink3);margin-bottom:.55rem;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center">
-          <span>Drag nodes · Hover for details</span>
-          <span style="display:flex;align-items:center;gap:.35rem"><span style="width:18px;height:2px;background:var(--rose);border-radius:2px;display:inline-block"></span>Interaction edge</span>
+          <span>Hover nodes for details · Drag to rearrange</span>
+          <span style="display:flex;align-items:center;gap:.35rem"><span style="width:18px;height:2px;background:var(--rose);border-radius:2px;display:inline-block"></span>Interaction</span>
           <span style="display:flex;align-items:center;gap:.35rem"><span style="width:18px;height:0;border-top:2px dashed var(--teal);display:inline-block"></span>Safe</span>
         </div>
         <div class="graph-wrap" id="matrix-subgraph-wrap" style="height:500px"></div>
         <div class="graph-legend" id="matrix-subgraph-legend" style="margin-top:.75rem"></div>
       </div>
+
+      <div class="tab-content" id="tab-pairwise">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap">
+          <label style="font-family:var(--mono);font-size:.6rem;color:var(--ink3);white-space:nowrap">Select pair:</label>
+          <select id="pairwise-select" onchange="loadPairwiseGraph()" style="flex:1;min-width:200px;padding:.5rem .75rem;border:1.5px solid var(--border2);border-radius:8px;font-family:var(--mono);font-size:.72rem;background:#fff;color:var(--ink);outline:none">${pairOptions}</select>
+          <button class="btn btn-outline btn-sm" onclick="loadPairwiseGraph()">Load Graph</button>
+        </div>
+        <div class="graph-wrap" id="pairwise-graph-wrap" style="height:460px">
+          <div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:.75rem;opacity:.4">
+            <svg width="44" height="44" viewBox="0 0 52 52" fill="none"><circle cx="12" cy="12" r="6" stroke="#0A7C71" stroke-width="2"/><circle cx="40" cy="12" r="6" stroke="#0A7C71" stroke-width="2"/><line x1="17" y1="14" x2="35" y2="14" stroke="#0A7C71" stroke-width="1.5"/></svg>
+            <span style="font-family:var(--mono);font-size:.72rem;color:var(--ink3)">Select a pair above and click Load Graph</span>
+          </div>
+        </div>
+        <div class="graph-legend" id="pairwise-graph-legend" style="margin-top:.75rem"></div>
+      </div>
+
       <div class="tab-content" id="tab-heatmap">
         ${grid}
         <div style="display:flex;gap:1.5rem;margin-top:.85rem;font-family:var(--mono);font-size:.6rem;color:var(--ink3);flex-wrap:wrap">
           <span style="display:flex;align-items:center;gap:.4rem"><span style="width:14px;height:14px;background:rgba(197,24,59,.4);border-radius:3px;border:1px solid var(--rose-bd);display:inline-block"></span>Interaction</span>
           <span style="display:flex;align-items:center;gap:.4rem"><span style="width:14px;height:14px;background:rgba(10,124,113,.25);border-radius:3px;border:1px solid var(--teal-bd);display:inline-block"></span>No Interaction</span>
+          <span style="color:var(--ink3);font-style:italic">Hover cells for details</span>
         </div>
       </div>
+
       <div class="tab-content" id="tab-table">
         <div style="overflow-x:auto">
           <table class="data-table"><thead><tr><th>#</th><th>Drug A</th><th>Drug B</th><th>Prediction</th><th>Confidence</th><th>Status</th></tr></thead>
-          <tbody>${sorted.map((p,i)=>`<tr>
-            <td style="color:var(--ink3);font-family:var(--mono)">${i+1}</td>
-            <td>${p.drug_a_name||p.drug_a_id||p.drug_a}</td>
-            <td>${p.drug_b_name||p.drug_b_id||p.drug_b}</td>
-            <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.top_prediction||p.message||'-'}</td>
-            <td style="font-family:var(--mono);color:var(--teal)">${p.confidence?(p.confidence*100).toFixed(1)+'%':'-'}</td>
-            <td>${p.is_interaction?'<span class="badge badge-danger" style="font-size:.55rem;padding:.1rem .5rem;margin:0">INTERACTION</span>':'<span class="badge badge-safe" style="font-size:.55rem;padding:.1rem .5rem;margin:0">SAFE</span>'}</td>
-          </tr>`).join('')}</tbody></table></div>
+          <tbody>${sorted.map((p,i)=>{
+            const na=getDrugLabel(p.drug_a_id)||p.drug_a_name||p.drug_a_id||p.drug_a;
+            const nb=getDrugLabel(p.drug_b_id)||p.drug_b_name||p.drug_b_id||p.drug_b;
+            return `<tr>
+              <td style="color:var(--ink3);font-family:var(--mono)">${i+1}</td>
+              <td><div style="font-weight:600">${na}</div><div style="font-family:var(--mono);font-size:.58rem;color:var(--ink3)">${p.drug_a_id||''}</div></td>
+              <td><div style="font-weight:600">${nb}</div><div style="font-family:var(--mono);font-size:.58rem;color:var(--ink3)">${p.drug_b_id||''}</div></td>
+              <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.top_prediction||p.message||'-'}</td>
+              <td style="font-family:var(--mono);color:var(--teal)">${p.confidence?(p.confidence*100).toFixed(1)+'%':'-'}</td>
+              <td>${p.is_interaction?'<span class="badge badge-danger" style="font-size:.55rem;padding:.1rem .5rem;margin:0">INTERACTION</span>':'<span class="badge badge-safe" style="font-size:.55rem;padding:.1rem .5rem;margin:0">SAFE</span>'}</td>
+            </tr>`;
+          }).join('')}</tbody></table></div>
       </div>
     </div>`;
+
+  // store pairs for pairwise graph
+  window._matrixPairs=pairs;
   setTimeout(()=>{const wrap=document.getElementById('matrix-subgraph-wrap');if(wrap&&drugs.length>=2)buildMatrixKnowledgeSubgraph(wrap,drugs,pairs)},60);
 }
 function switchTab(btn,targetId){
@@ -1413,6 +1470,47 @@ function switchTab(btn,targetId){
   parent.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
   btn.classList.add('active');
   const t=document.getElementById(targetId);if(t)t.classList.add('active');
+}
+
+// ════════════════════════════════
+// PAIRWISE SUBGRAPH LOADER
+// ════════════════════════════════
+async function loadPairwiseGraph(){
+  const sel=document.getElementById('pairwise-select');
+  const pairs=window._matrixPairs;
+  if(!sel||!pairs)return;
+  const idx=parseInt(sel.value);
+  const p=pairs[idx];
+  if(!p){return}
+  const wrap=document.getElementById('pairwise-graph-wrap');
+  const legend=document.getElementById('pairwise-graph-legend');
+  wrap.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:.75rem"><div class="spinner"></div><span style="font-family:var(--mono);font-size:.72rem;color:var(--ink3)">Loading subgraph…</span></div>';
+  if(legend) legend.innerHTML='';
+  try{
+    const res=await fetch(`${API}/api/subgraph?drug_a=${p.drug_a_id}&drug_b=${p.drug_b_id}&max_nbr=12`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    const enriched=enrichNodes(data.nodes||[]);
+    const nodeColor={
+      drug_a:'#0A7C71',drug_b:'#4F46E5',shared:'#F5A623',
+      protein:'#F59E0B',atc:'#10B981',disease:'#EF4444',effect:'#94A3B8',default:'#94A3B8'
+    };
+    new ForceGraph(wrap,enriched,data.edges||[],{nodeColor,bgColor:'#F7F5F0'});
+    if(legend){
+      const na=getDrugLabel(p.drug_a_id)||p.drug_a_id;
+      const nb=getDrugLabel(p.drug_b_id)||p.drug_b_id;
+      legend.innerHTML=`
+        <span class="legend-item"><span class="legend-dot" style="background:#0A7C71"></span>${na} (${p.drug_a_id})</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#4F46E5"></span>${nb} (${p.drug_b_id})</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#F5A623"></span>Shared</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#F59E0B"></span>Protein</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#10B981"></span>ATC</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#EF4444"></span>Disease</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#94A3B8"></span>Effect</span>`;
+    }
+  }catch(e){
+    wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--mono);font-size:.72rem;color:var(--ink3)">⚠ ${e.message}</div>`;
+  }
 }
 
 // ════════════════════════════════

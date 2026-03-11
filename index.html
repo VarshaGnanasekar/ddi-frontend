@@ -38,43 +38,31 @@
 html{scroll-behavior:smooth}
 body{
   font-family:var(--sans);
-  background:var(--bg);
   color:var(--ink);
   min-height:100vh;
   font-size:14px;
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
+  background-image:url('https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=1920&q=80');
+  background-size:cover;
+  background-position:center top;
+  background-attachment:fixed;
+  background-repeat:no-repeat;
+}
+/* Frosted glass tint over the photo */
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:0;
+  background:rgba(247,245,240,0.84);
+  pointer-events:none;
 }
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--teal-bd);border-radius:99px}
 
-/* ═══════════════════════════════
-   LAYERED BACKGROUND IMAGERY
-═══════════════════════════════ */
-#bg-art{
-  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
-}
-#bg-art::before{
-  content:'';position:absolute;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='140'%3E%3Cpolygon points='60,5 115,35 115,105 60,135 5,105 5,35' fill='none' stroke='%230A7C71' stroke-width='0.5' stroke-opacity='0.1'/%3E%3C/svg%3E");
-  background-size:120px 140px;
-  opacity:1;
-}
-#bg-art::after{
-  content:'';position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse 60% 40% at 10% 15%, rgba(10,124,113,0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 50% at 90% 10%, rgba(79,70,229,0.05) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 50% at 50% 90%, rgba(15,179,163,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 40% at 80% 60%, rgba(197,24,59,0.04) 0%, transparent 50%);
-}
-.bg-molecule{
-  position:absolute;opacity:0.07;pointer-events:none;
-}
 
-#particle-bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
 
 /* ═══════════════════════════════
    NAV
@@ -520,90 +508,7 @@ footer span{color:var(--teal)}
 </head>
 <body>
 
-<!-- ═══ LAYERED BACKGROUND ART ═══ -->
-<div id="bg-art">
-  <svg class="bg-molecule" style="top:-40px;left:-60px;width:420px;height:420px" viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="210" cy="210" r="18" fill="#0A7C71" opacity="0.6"/>
-    <circle cx="110" cy="130" r="13" fill="#0FB3A3" opacity="0.5"/>
-    <circle cx="320" cy="140" r="13" fill="#4F46E5" opacity="0.4"/>
-    <circle cx="80"  cy="290" r="10" fill="#C5183B" opacity="0.35"/>
-    <circle cx="340" cy="300" r="10" fill="#0A7C71" opacity="0.4"/>
-    <circle cx="200" cy="340" r="12" fill="#0FB3A3" opacity="0.45"/>
-    <circle cx="150" cy="210" r="8"  fill="#92580A" opacity="0.4"/>
-    <circle cx="280" cy="230" r="8"  fill="#4F46E5" opacity="0.35"/>
-    <line x1="210" y1="210" x2="110" y2="130" stroke="#0A7C71" stroke-width="1.5" opacity="0.25"/>
-    <line x1="210" y1="210" x2="320" y2="140" stroke="#0A7C71" stroke-width="1.5" opacity="0.25"/>
-    <line x1="210" y1="210" x2="80"  y2="290" stroke="#0A7C71" stroke-width="1.5" opacity="0.2"/>
-    <line x1="210" y1="210" x2="340" y2="300" stroke="#0A7C71" stroke-width="1.5" opacity="0.2"/>
-    <line x1="210" y1="210" x2="200" y2="340" stroke="#0A7C71" stroke-width="1.5" opacity="0.25"/>
-    <line x1="110" y1="130" x2="80"  y2="290" stroke="#0FB3A3" stroke-width="1"   opacity="0.18"/>
-    <line x1="320" y1="140" x2="340" y2="300" stroke="#4F46E5" stroke-width="1"   opacity="0.18"/>
-    <line x1="150" y1="210" x2="110" y2="130" stroke="#92580A" stroke-width="1"   opacity="0.15"/>
-    <line x1="280" y1="230" x2="320" y2="140" stroke="#4F46E5" stroke-width="1"   opacity="0.15"/>
-    <line x1="150" y1="210" x2="200" y2="340" stroke="#92580A" stroke-width="1"   opacity="0.15"/>
-    <line x1="280" y1="230" x2="200" y2="340" stroke="#0FB3A3" stroke-width="1"   opacity="0.15"/>
-  </svg>
 
-  <svg class="bg-molecule" style="top:60px;right:-30px;width:120px;height:500px" viewBox="0 0 120 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M30,0 Q90,50 30,100 Q-30,150 30,200 Q90,250 30,300 Q-30,350 30,400 Q90,450 30,500" stroke="#0A7C71" stroke-width="1.5" fill="none" opacity="0.3"/>
-    <path d="M90,0 Q30,50 90,100 Q150,150 90,200 Q30,250 90,300 Q150,350 90,400 Q30,450 90,500" stroke="#0FB3A3" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <line x1="30" y1="50"  x2="90" y2="50"  stroke="#4F46E5" stroke-width="1" opacity="0.2"/>
-    <line x1="30" y1="100" x2="90" y2="100" stroke="#C5183B" stroke-width="1" opacity="0.2"/>
-    <line x1="30" y1="150" x2="90" y2="150" stroke="#0A7C71" stroke-width="1" opacity="0.2"/>
-    <line x1="30" y1="200" x2="90" y2="200" stroke="#4F46E5" stroke-width="1" opacity="0.2"/>
-    <line x1="30" y1="250" x2="90" y2="250" stroke="#0FB3A3" stroke-width="1" opacity="0.2"/>
-    <line x1="30" y1="300" x2="90" y2="300" stroke="#C5183B" stroke-width="1" opacity="0.2"/>
-    <line x1="30" y1="350" x2="90" y2="350" stroke="#0A7C71" stroke-width="1" opacity="0.2"/>
-    <line x1="30" y1="400" x2="90" y2="400" stroke="#4F46E5" stroke-width="1" opacity="0.2"/>
-    <line x1="30" y1="450" x2="90" y2="450" stroke="#0FB3A3" stroke-width="1" opacity="0.2"/>
-    <circle cx="30" cy="50"  r="4" fill="#4F46E5" opacity="0.3"/>
-    <circle cx="90" cy="50"  r="4" fill="#4F46E5" opacity="0.3"/>
-    <circle cx="30" cy="150" r="4" fill="#0A7C71" opacity="0.3"/>
-    <circle cx="90" cy="150" r="4" fill="#0A7C71" opacity="0.3"/>
-    <circle cx="30" cy="250" r="4" fill="#C5183B" opacity="0.3"/>
-    <circle cx="90" cy="250" r="4" fill="#C5183B" opacity="0.3"/>
-    <circle cx="30" cy="350" r="4" fill="#0A7C71" opacity="0.3"/>
-    <circle cx="90" cy="350" r="4" fill="#0A7C71" opacity="0.3"/>
-  </svg>
-
-  <svg class="bg-molecule" style="bottom:80px;right:60px;width:220px;height:220px" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="110,20 195,65 195,155 110,200 25,155 25,65" stroke="#4F46E5" stroke-width="1.5" fill="none" opacity="0.18"/>
-    <polygon points="110,45 175,80 175,150 110,185 45,150 45,80" stroke="#0A7C71" stroke-width="1" fill="none" opacity="0.12"/>
-    <circle cx="110" cy="20"  r="6" fill="#4F46E5" opacity="0.25"/>
-    <circle cx="195" cy="65"  r="6" fill="#0A7C71" opacity="0.25"/>
-    <circle cx="195" cy="155" r="6" fill="#C5183B" opacity="0.25"/>
-    <circle cx="110" cy="200" r="6" fill="#4F46E5" opacity="0.25"/>
-    <circle cx="25"  cy="155" r="6" fill="#0FB3A3" opacity="0.25"/>
-    <circle cx="25"  cy="65"  r="6" fill="#0A7C71" opacity="0.25"/>
-    <circle cx="110" cy="110" r="22" stroke="#0A7C71" stroke-width="1" fill="none" opacity="0.15" stroke-dasharray="4 3"/>
-  </svg>
-
-  <svg class="bg-molecule" style="top:30%;right:-80px;width:340px;height:340px;opacity:0.06" viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="170" cy="170" r="12" fill="#4F46E5" opacity="0.8"/>
-    <ellipse cx="170" cy="170" rx="140" ry="55" stroke="#4F46E5" stroke-width="1.2" fill="none"/>
-    <ellipse cx="170" cy="170" rx="140" ry="55" stroke="#0A7C71" stroke-width="1" fill="none" transform="rotate(60 170 170)"/>
-    <ellipse cx="170" cy="170" rx="140" ry="55" stroke="#C5183B" stroke-width="1" fill="none" transform="rotate(120 170 170)"/>
-    <circle cx="310" cy="170" r="6" fill="#4F46E5" opacity="0.6"/>
-    <circle cx="239" cy="49" r="5" fill="#0A7C71" opacity="0.6"/>
-    <circle cx="101" cy="49" r="5" fill="#C5183B" opacity="0.6"/>
-  </svg>
-
-  <svg class="bg-molecule" style="bottom:0;left:0;width:300px;height:200px" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="30"  cy="100" r="14" stroke="#0A7C71" stroke-width="1.5" fill="none" opacity="0.25"/>
-    <circle cx="100" cy="60"  r="12" stroke="#0FB3A3" stroke-width="1.5" fill="none" opacity="0.22"/>
-    <circle cx="170" cy="130" r="12" stroke="#4F46E5" stroke-width="1.5" fill="none" opacity="0.22"/>
-    <circle cx="245" cy="80"  r="14" stroke="#C5183B" stroke-width="1.5" fill="none" opacity="0.2"/>
-    <line x1="44"  y1="100" x2="88"  y2="60"  stroke="#0A7C71" stroke-width="1.5" opacity="0.18"/>
-    <line x1="112" y1="60"  x2="158" y2="130" stroke="#0FB3A3" stroke-width="1.5" opacity="0.18"/>
-    <line x1="182" y1="130" x2="231" y2="80"  stroke="#4F46E5" stroke-width="1.5" opacity="0.18"/>
-    <text x="22"  y="104" font-family="serif" font-style="italic" font-size="11" fill="#0A7C71" opacity="0.35">C</text>
-    <text x="93"  y="64"  font-family="serif" font-style="italic" font-size="10" fill="#0FB3A3" opacity="0.35">N</text>
-    <text x="163" y="134" font-family="serif" font-style="italic" font-size="10" fill="#4F46E5" opacity="0.35">O</text>
-    <text x="238" y="84"  font-family="serif" font-style="italic" font-size="11" fill="#C5183B" opacity="0.35">H</text>
-  </svg>
-</div>
-
-<canvas id="particle-bg"></canvas>
 
 <!-- AUTH MODAL -->
 <div id="auth-modal">
@@ -682,12 +587,9 @@ footer span{color:var(--teal)}
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;flex-wrap:wrap;gap:.5rem">
       <span class="card-label" style="margin:0">Select Drug Pair</span>
-      <div style="display:flex;align-items:center;gap:.5rem">
-        <span id="auto-predict-badge" style="display:none;font-family:var(--mono);font-size:.58rem;background:var(--teal-pale);color:var(--teal);border:1px solid var(--teal-bd);border-radius:999px;padding:.15rem .65rem;letter-spacing:.06em">⚡ Auto-predict ON</span>
-        <div class="topk-wrap" style="padding:.35rem .75rem">
-          <label>Top-K</label>
-          <input type="number" id="topk" min="3" max="15" value="7" style="width:36px"/>
-        </div>
+      <div class="topk-wrap" style="padding:.35rem .75rem">
+        <label>Top-K</label>
+        <input type="number" id="topk" min="3" max="15" value="7" style="width:36px"/>
       </div>
     </div>
     <div class="grid-2">
@@ -845,28 +747,21 @@ DB00945,DB00682</pre>
 
 <script>
 // ════════════════════════════════
-// PARTICLES
+// NAME HELPERS
 // ════════════════════════════════
-(function(){
-  const cvs=document.getElementById('particle-bg');
-  const ctx=cvs.getContext('2d');
-  let W,H,nodes;
-  function resize(){W=cvs.width=window.innerWidth;H=cvs.height=window.innerHeight;init()}
-  function init(){
-    const c=Math.floor((W*H)/30000);
-    nodes=Array.from({length:c},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.12,vy:(Math.random()-.5)*.12,r:Math.random()*1.5+0.8}));
-  }
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
-      const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);
-      if(d<90){ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.strokeStyle=`rgba(10,124,113,${0.07*(1-d/90)})`;ctx.lineWidth=.6;ctx.stroke()}
-    }
-    nodes.forEach(n=>{ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle='rgba(10,124,113,0.15)';ctx.fill()});
-  }
-  function tick(){nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<-10)n.x=W+10;if(n.x>W+10)n.x=-10;if(n.y<-10)n.y=H+10;if(n.y>H+10)n.y=-10});draw();requestAnimationFrame(tick)}
-  window.addEventListener('resize',resize);resize();tick();
-})();
+/** Returns the human-readable name for a DrugBank ID, or the ID as fallback */
+function getDrugLabel(id){
+  if(!id) return '';
+  const d=allDrugs.find(x=>x.id===id);
+  return (d&&d.name) ? d.name : id;
+}
+/** Enrich nodes from API so labels show drug names instead of raw IDs */
+function enrichNodes(nodes){
+  return (nodes||[]).map(n=>{
+    const lbl=/^DB\d{5}$/.test(n.id||'') ? getDrugLabel(n.id) : (n.label||n.id||'');
+    return {...n, label:lbl};
+  });
+}
 
 // ════════════════════════════════
 // FORCE GRAPH
@@ -1055,7 +950,8 @@ async function buildMatrixKnowledgeSubgraph(wrap, drugs, pairs){
       const res=await fetch(`${API}/api/subgraph?drug_a=${p.drug_a_id}&drug_b=${p.drug_b_id}&max_nbr=8`);
       if(!res.ok) continue;
       const data=await res.json();
-      (data.nodes||[]).forEach(n=>{
+      const enriched=enrichNodes(data.nodes||[]);
+      enriched.forEach(n=>{
         if(!nodeMap[n.id]){
           let type=n.type||'default';
           if(drugSlotType[n.id]) type=drugSlotType[n.id];
@@ -1087,7 +983,7 @@ async function buildMatrixKnowledgeSubgraph(wrap, drugs, pairs){
   }
   drugs.forEach((id,i)=>{
     if(!nodeMap[id]){
-      nodeMap[id]={id, label:id, type:`drug_slot_${i}`, meta:'Input drug'};
+      nodeMap[id]={id, label:getDrugLabel(id), type:`drug_slot_${i}`, meta:'Input drug'};
     }
   });
   const allNodes=Object.values(nodeMap);
@@ -1224,7 +1120,7 @@ class DrugSelector{
     }
     this.ctrlEl.style.color='var(--ink)';
     this.ctrlEl.appendChild(this.arrEl);
-    if(typeof _maybeAutoPredict==='function') setTimeout(_maybeAutoPredict,50);
+
   }
   getValue(){return this.selected?this.selected.id:''}
   toggle(){this.open?this.close():this.openPanel()}
@@ -1254,19 +1150,6 @@ function addMatrixDrug(){if(matrixSelectors.length>=10)return;_addMatrixSel(matr
 function _addMatrixSel(i){
   const div=document.createElement('div');div.id=`msc-${i}`;document.getElementById('matrix-drug-inputs').appendChild(div);
   const s=new DrugSelector(`msc-${i}`,`Drug ${i+1}`);s.render();matrixSelectors.push(s);
-}
-
-// ════════════════════════════════
-// AUTO-PREDICT (always enabled once drugs loaded)
-// ════════════════════════════════
-let autoPredict=false;
-function _maybeAutoPredict(){
-  if(!autoPredict)return;
-  const da=selA&&selA.getValue(), db=selB&&selB.getValue();
-  if(da&&db){
-    clearTimeout(window._autoPredictTimer);
-    window._autoPredictTimer=setTimeout(()=>runPredict(),300);
-  }
 }
 
 // ════════════════════════════════
@@ -1329,13 +1212,7 @@ async function fetchAllDrugs(){
     // Init selectors with loaded data
     initSelectors();
 
-    // Enable auto-predict (names are loaded)
-    autoPredict=true;
-    const badge=document.getElementById('auto-predict-badge');
-    const row=document.getElementById('manual-predict-row');
-    if(badge) badge.style.display='inline-flex';
-    // Keep manual button visible but also auto-predict
-    if(row) row.style.display='flex';
+
 
   }catch(e){
     console.error('Drug load error:',e);
@@ -1493,7 +1370,8 @@ async function loadGraph(){
   try{
     const res=await fetch(`${API}/api/subgraph?drug_a=${da}&drug_b=${db}&max_nbr=12`);
     const data=await res.json();
-    currentGraph=new ForceGraph(wrap,data.nodes,data.edges);
+    const enrichedNodes=enrichNodes(data.nodes||[]);
+    currentGraph=new ForceGraph(wrap,enrichedNodes,data.edges||[]);
     document.getElementById('graph-legend').style.display='flex';
     document.getElementById('graph-expand-btn').style.display='inline-flex';
   }catch(e){wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--mono);font-size:.72rem;color:var(--ink3)">⚠ ${e.message}</div>`}

@@ -44,25 +44,31 @@ body{
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
-  background-image:url('https://www.shutterstock.com/shutterstock/videos/3911150453/thumb/1.jpg?ip=x480');
-  background-size:cover;
-  background-position:center top;
-  background-attachment:fixed;
-  background-repeat:no-repeat;
+  background:#F7F5F0;
 }
-/* Frosted glass tint over the photo */
-body::before{
-  content:'';
-  position:fixed;inset:0;z-index:0;
-  background:rgba(247,245,240,0);
+
+/* ── VIDEO BACKGROUND ── */
+#bg-video{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center top;
+  z-index:-2;
   pointer-events:none;
 }
+/* Frosted glass tint over the video */
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:-1;
+  background:rgba(247,245,240,0.18);
+  pointer-events:none;
+}
+
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--teal-bd);border-radius:99px}
-
-
-
 
 /* ═══════════════════════════════
    NAV
@@ -104,7 +110,6 @@ nav{
 }
 .nav-btn:hover{color:var(--ink);background:rgba(0,0,0,0.05)}
 .nav-btn.active{background:var(--teal);color:#fff;box-shadow:0 2px 8px rgba(10,124,113,0.3)}
-.nav-auth{display:flex;gap:0.4rem;align-items:center;flex-shrink:0}
 
 /* ═══════════════════════════════
    BUTTONS
@@ -412,34 +417,6 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1.5rem 1
 .data-table tbody tr:last-child td{border-bottom:none}
 
 /* ═══════════════════════════════
-   AUTH MODAL
-═══════════════════════════════ */
-#auth-modal{
-  display:none;position:fixed;inset:0;
-  background:rgba(247,245,240,0.82);backdrop-filter:blur(12px);
-  z-index:600;align-items:center;justify-content:center;
-}
-#auth-modal.show{display:flex}
-.auth-box{
-  background:#fff;border:1px solid var(--border2);
-  border-radius:22px;padding:2.4rem;
-  width:min(400px,94vw);box-shadow:var(--shadow2);
-}
-.auth-title{font-family:var(--display);font-size:1.8rem;font-weight:600;margin-bottom:0.3rem}
-.auth-sub{color:var(--ink3);font-size:0.82rem;margin-bottom:1.5rem}
-.auth-field{margin-bottom:1rem}
-.auth-field label{display:block;font-family:var(--mono);font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:0.4rem}
-.auth-field input{
-  width:100%;padding:0.72rem 1rem;
-  background:var(--bg3);border:1.5px solid var(--border);
-  border-radius:10px;color:var(--ink);
-  font-family:var(--sans);font-size:0.85rem;outline:none;
-  transition:border-color 0.15s;
-}
-.auth-field input:focus{border-color:var(--teal)}
-.auth-err{color:var(--rose);font-family:var(--mono);font-size:0.7rem;margin-top:0.35rem;min-height:1.2em}
-
-/* ═══════════════════════════════
    NOTIFICATIONS
 ═══════════════════════════════ */
 #notif{position:fixed;bottom:1.5rem;right:1rem;z-index:700;display:flex;flex-direction:column;gap:0.5rem}
@@ -490,7 +467,6 @@ footer span{color:var(--teal)}
   .nav-links.mobile-open{display:flex}
   .nav-btn{padding:0.6rem 1rem;text-align:left;border-radius:8px;font-size:0.82rem}
   .ham-btn{display:flex}
-  .nav-auth .btn-ghost{display:none}
 }
 
 /* Drug loading state */
@@ -508,26 +484,26 @@ footer span{color:var(--teal)}
 </head>
 <body>
 
+<!-- ── BACKGROUND VIDEO ── -->
+<!-- Replace the src below with your own video URL or local path -->
+<video
+  id="bg-video"
+  autoplay
+  muted
+  loop
+  playsinline
+  poster="https://www.shutterstock.com/shutterstock/videos/3911150453/thumb/1.jpg?ip=x480"
+>
+  <!--
+    Add your video source here, for example:
+    <source src="your-video.mp4" type="video/mp4">
 
-
-<!-- AUTH MODAL -->
-<div id="auth-modal">
-  <div class="auth-box">
-    <div class="auth-title" id="auth-title">Sign in</div>
-    <div class="auth-sub">Access your prediction history</div>
-    <div class="auth-field"><label>Username</label><input id="auth-user" placeholder="username" autocomplete="username"/></div>
-    <div class="auth-field"><label>Password</label><input id="auth-pass" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
-    <div class="auth-err" id="auth-err"></div>
-    <div style="display:flex;gap:.75rem;margin-top:1.25rem">
-      <button class="btn btn-primary" id="auth-submit-btn" onclick="submitAuth()" style="flex:1">Sign in</button>
-      <button class="btn btn-ghost" onclick="closeAuth()">Cancel</button>
-    </div>
-    <div style="text-align:center;margin-top:1rem;font-family:var(--mono);font-size:.6rem;color:var(--ink3)">
-      <span id="auth-switch-text">No account? </span>
-      <a href="#" style="color:var(--teal);font-weight:600" id="auth-switch-link" onclick="toggleAuthMode();return false">Sign up</a>
-    </div>
-  </div>
-</div>
+    Until you add a local video, the poster image is shown as a fallback.
+    You can also use a free stock video URL, e.g.:
+    <source src="https://cdn.coverr.co/videos/coverr-medical-laboratory-2888/1080p.mp4" type="video/mp4">
+  -->
+  <source src="https://cdn.coverr.co/videos/coverr-a-person-looking-at-molecules-on-the-screen-of-a-computer-5396/1080p.mp4" type="video/mp4">
+</video>
 
 <!-- STREAM OVERLAY -->
 <div id="stream-overlay">
@@ -554,14 +530,10 @@ footer span{color:var(--teal)}
     <button class="nav-btn" onclick="showPage('batch',this)">Batch</button>
     <button class="nav-btn" onclick="showPage('matrix',this)">Matrix</button>
     <button class="nav-btn" onclick="showPage('explore',this)">Explore</button>
-    <button class="nav-btn" onclick="showPage('history',this)">History</button>
   </div>
-  <div style="display:flex;align-items:center;gap:0.4rem">
-    <div class="nav-auth" id="nav-auth"></div>
-    <button class="ham-btn" id="ham-btn" onclick="toggleMobileNav()" aria-label="Menu">
-      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-  </div>
+  <button class="ham-btn" id="ham-btn" onclick="toggleMobileNav()" aria-label="Menu">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </nav>
 
 <main>
@@ -578,7 +550,6 @@ footer span{color:var(--teal)}
     </div>
   </div>
 
-  <!-- Drug loading indicator (replaces auto-load zone, hidden after load) -->
   <div id="drug-load-bar" class="drug-loading-bar">
     <div class="spinner"></div>
     <span id="drug-load-msg">Loading 9,495 drugs from DrugBank…</span>
@@ -716,32 +687,6 @@ DB00945,DB00682</pre>
   <div id="explore-result" style="display:none;margin-top:1rem"></div>
 </div>
 
-<!-- ═══ PAGE: HISTORY ═══ -->
-<div class="page" id="page-history">
-  <div class="hero">
-    <div class="hero-eyebrow">Prediction Log</div>
-    <div class="hero-title">Your <em>History.</em></div>
-    <div class="hero-sub"><span class="hero-pill">Signed-in users</span><span class="hero-pill">CSV Export</span></div>
-  </div>
-  <div id="history-auth-prompt" style="display:none">
-    <div class="card" style="text-align:center;padding:3rem">
-      <div style="font-size:3rem;margin-bottom:1rem;opacity:.3">🔐</div>
-      <div style="font-size:.82rem;color:var(--ink3);margin-bottom:1.25rem">Sign in to save and view your prediction history</div>
-      <button class="btn btn-primary" onclick="openAuth('login')">Sign in</button>
-    </div>
-  </div>
-  <div id="history-list" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
-      <span style="font-family:var(--mono);font-size:.62rem;color:var(--ink3)" id="history-count"></span>
-      <div style="display:flex;gap:.5rem">
-        <button class="btn btn-ghost btn-sm" onclick="exportHistoryCSV()">Export CSV</button>
-        <button class="btn btn-ghost btn-sm" style="color:var(--rose)" onclick="clearHistory()">Clear</button>
-      </div>
-    </div>
-    <div id="history-items"></div>
-  </div>
-</div>
-
 </main>
 <footer>DDI Intelligence Platform <span>·</span> PyTorch Geometric <span>·</span> R-GCN <span>·</span> DrugBank 5.x</footer>
 
@@ -749,13 +694,11 @@ DB00945,DB00682</pre>
 // ════════════════════════════════
 // NAME HELPERS
 // ════════════════════════════════
-/** Returns the human-readable name for a DrugBank ID, or the ID as fallback */
 function getDrugLabel(id){
   if(!id) return '';
   const d=allDrugs.find(x=>x.id===id);
   return (d&&d.name) ? d.name : id;
 }
-/** Enrich nodes from API so labels show drug names instead of raw IDs */
 function enrichNodes(nodes){
   return (nodes||[]).map(n=>{
     const lbl=/^DB\d{5}$/.test(n.id||'') ? getDrugLabel(n.id) : (n.label||n.id||'');
@@ -979,7 +922,7 @@ async function buildMatrixKnowledgeSubgraph(wrap, drugs, pairs){
           dashed: !p.is_interaction
         });
       }
-    }catch(e){ /* skip failed pair */ }
+    }catch(e){ /* skip */ }
   }
   drugs.forEach((id,i)=>{
     if(!nodeMap[id]){
@@ -1016,19 +959,16 @@ async function buildMatrixKnowledgeSubgraph(wrap, drugs, pairs){
 // APP STATE
 // ════════════════════════════════
 const API='https://varshasekar-ddi-prediction-api.hf.space';
-let token=localStorage.getItem('ddi_token')||'';
-let username=localStorage.getItem('ddi_username')||'';
-let lastResult=null,authMode='login';
+let lastResult=null;
 let allDrugs=[],matrixSelectors=[],matrixCount=3;
 let currentGraph=null;
 
-// HuggingFace dataset file URLs
 const HF_BASE='https://huggingface.co/datasets/VarshaSekar/Drug_Drug_Prediction/resolve/main';
 const HF_MAPPING_URL=`${HF_BASE}/drug_id_mapping_aux.csv`;
 const HF_NAMES_URL=`${HF_BASE}/drug_names.csv`;
 
 // ════════════════════════════════
-// CSV PARSER (lightweight)
+// CSV PARSER
 // ════════════════════════════════
 function parseCSV(text){
   const lines=text.trim().split('\n');
@@ -1120,7 +1060,6 @@ class DrugSelector{
     }
     this.ctrlEl.style.color='var(--ink)';
     this.ctrlEl.appendChild(this.arrEl);
-
   }
   getValue(){return this.selected?this.selected.id:''}
   toggle(){this.open?this.close():this.openPanel()}
@@ -1153,10 +1092,7 @@ function _addMatrixSel(i){
 }
 
 // ════════════════════════════════
-// FETCH DRUGS — HuggingFace only
-// 1. drug_id_mapping_aux.csv  → valid set of 9495 DrugBank IDs
-// 2. drug_names.csv           → node_index, id, name, smiles
-// Intersect to get names for the 9495 valid drugs only
+// FETCH DRUGS
 // ════════════════════════════════
 async function fetchAllDrugs(){
   const loadBar=document.getElementById('drug-load-bar');
@@ -1165,32 +1101,23 @@ async function fetchAllDrugs(){
 
   try{
     if(loadMsg) loadMsg.textContent='Fetching drug ID mapping…';
-
-    // Fetch both CSVs in parallel
     const [mappingRes, namesRes] = await Promise.all([
       fetch(HF_MAPPING_URL),
       fetch(HF_NAMES_URL)
     ]);
-
     if(!mappingRes.ok) throw new Error(`drug_id_mapping_aux.csv: HTTP ${mappingRes.status}`);
     if(!namesRes.ok)   throw new Error(`drug_names.csv: HTTP ${namesRes.status}`);
-
     if(loadMsg) loadMsg.textContent='Parsing drug data…';
-
     const [mappingText, namesText] = await Promise.all([
       mappingRes.text(),
       namesRes.text()
     ]);
-
-    // Parse drug_id_mapping_aux.csv  → columns: drugbank_id, node_index
     const mappingRows = parseCSV(mappingText);
     const validIds = new Set();
     mappingRows.forEach(r=>{
       const id=(r['drugbank_id']||r['drugbank id']||r['id']||'').trim();
       if(id) validIds.add(id);
     });
-
-    // Parse drug_names.csv → columns: node_index, id, name, smiles
     const namesRows = parseCSV(namesText);
     const nameMap={};
     namesRows.forEach(r=>{
@@ -1198,22 +1125,12 @@ async function fetchAllDrugs(){
       const nm=(r['name']||'').trim();
       if(id&&nm) nameMap[id]=nm;
     });
-
-    // Build allDrugs: only the valid 9495 IDs, enriched with names
     allDrugs = Array.from(validIds)
       .map(id=>({ id, name: nameMap[id]||null }))
       .sort((a,b)=>a.id.localeCompare(b.id));
-
-    // Hide loading bar
     if(loadBar) loadBar.style.display='none';
-
     if(metaEl) metaEl.textContent=`${allDrugs.length.toLocaleString()} drugs · DrugBank`;
-
-    // Init selectors with loaded data
     initSelectors();
-
-
-
   }catch(e){
     console.error('Drug load error:',e);
     if(loadMsg) loadMsg.textContent=`⚠ ${e.message} — falling back to API`;
@@ -1222,7 +1139,6 @@ async function fetchAllDrugs(){
       loadBar.style.background='var(--amber-pale)';
       loadBar.querySelector('.spinner').style.display='none';
     }
-    // Fallback: try the API
     try{
       const r=await fetch(`${API}/api/drugs?q=&limit=10000`);
       if(r.ok){
@@ -1231,7 +1147,6 @@ async function fetchAllDrugs(){
         if(loadBar) loadBar.style.display='none';
         if(metaEl) metaEl.textContent=`${allDrugs.length.toLocaleString()} drugs · API`;
         initSelectors();
-        autoPredict=true;
       }
     }catch(e2){
       notify('Could not load drug list','err');
@@ -1243,8 +1158,7 @@ async function fetchAllDrugs(){
 // MOBILE NAV
 // ════════════════════════════════
 function toggleMobileNav(){
-  const nl=document.getElementById('nav-links');
-  nl.classList.toggle('mobile-open');
+  document.getElementById('nav-links').classList.toggle('mobile-open');
 }
 
 // ════════════════════════════════
@@ -1256,42 +1170,6 @@ function showPage(name,btn){
   document.getElementById(`page-${name}`).classList.add('active');
   if(btn)btn.classList.add('active');
   document.getElementById('nav-links').classList.remove('mobile-open');
-  if(name==='history')loadHistory();
-}
-
-// ════════════════════════════════
-// AUTH
-// ════════════════════════════════
-function openAuth(mode){
-  authMode=mode;const il=mode==='login';
-  document.getElementById('auth-title').textContent=il?'Sign in':'Create account';
-  document.getElementById('auth-submit-btn').textContent=il?'Sign in':'Create account';
-  document.getElementById('auth-switch-text').textContent=il?'No account? ':'Have an account? ';
-  document.getElementById('auth-switch-link').textContent=il?'Sign up':'Sign in';
-  document.getElementById('auth-err').textContent='';
-  document.getElementById('auth-modal').classList.add('show');
-}
-function closeAuth(){document.getElementById('auth-modal').classList.remove('show')}
-function toggleAuthMode(){openAuth(authMode==='login'?'register':'login')}
-async function submitAuth(){
-  const user=document.getElementById('auth-user').value.trim(),pass=document.getElementById('auth-pass').value;
-  const err=document.getElementById('auth-err');
-  if(!user||!pass){err.textContent='Please fill in both fields';return}
-  try{
-    const res=await fetch(API+(authMode==='login'?'/api/auth/login':'/api/auth/register'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user,password:pass})});
-    const data=await res.json();
-    if(!res.ok){err.textContent=data.detail||'Error';return}
-    token=data.token;username=data.username;
-    localStorage.setItem('ddi_token',token);localStorage.setItem('ddi_username',username);
-    updateAuthUI();closeAuth();notify(`Welcome, ${username}!`,'ok');
-  }catch(e){err.textContent='Connection error'}
-}
-function logout(){token=username='';localStorage.removeItem('ddi_token');localStorage.removeItem('ddi_username');updateAuthUI();notify('Signed out','ok')}
-function updateAuthUI(){
-  const el=document.getElementById('nav-auth');
-  el.innerHTML=token&&username
-    ?`<span style="font-family:var(--mono);font-size:.62rem;color:var(--ink3);padding:0 .4rem">◉ ${username}</span><button class="btn btn-ghost btn-sm" onclick="logout()">Out</button>`
-    :`<button class="btn btn-ghost btn-sm" onclick="openAuth('login')">Login</button><button class="btn btn-primary btn-sm" onclick="openAuth('register')">Sign up</button>`;
 }
 
 // ════════════════════════════════
@@ -1308,7 +1186,7 @@ async function runPredict(){
   overlay.classList.add('show');steps.innerHTML='';fill.style.width='0%';msg.textContent='Connecting…';
   const btn=document.getElementById('predict-btn');btn.disabled=true;
   try{
-    const hdrs={'Content-Type':'application/json'};if(token)hdrs['Authorization']=`Bearer ${token}`;
+    const hdrs={'Content-Type':'application/json'};
     const res=await fetch(`${API}/api/predict/stream`,{method:'POST',headers:hdrs,body:JSON.stringify({drug_a:da,drug_b:db,top_k:topk})});
     const reader=res.body.getReader();const dec=new TextDecoder();
     let buf='',result=null;
@@ -1404,7 +1282,7 @@ async function runBatch(){
   if(!batchData?.length)return;
   const r=document.getElementById('batch-result');r.style.display='block';
   r.innerHTML='<div class="card" style="text-align:center;padding:2rem"><div class="spinner"></div><div style="margin-top:1rem;font-family:var(--mono);font-size:.7rem;color:var(--ink3)">Processing…</div></div>';
-  const hdrs={'Content-Type':'application/json'};if(token)hdrs['Authorization']=`Bearer ${token}`;
+  const hdrs={'Content-Type':'application/json'};
   try{
     const res=await fetch(`${API}/api/predict/batch`,{method:'POST',headers:hdrs,body:JSON.stringify({pairs:batchData,top_k:1})});
     const data=await res.json();renderBatch(data.results);
@@ -1441,7 +1319,7 @@ async function runMatrix(){
   if(drugs.length<2){notify('Select at least 2 drugs','err');return}
   const r=document.getElementById('matrix-result');r.style.display='block';
   r.innerHTML='<div class="card" style="text-align:center;padding:2rem"><div class="spinner"></div><div style="margin-top:1rem;font-family:var(--mono);font-size:.7rem;color:var(--ink3)">Computing pairwise interactions…</div></div>';
-  const hdrs={'Content-Type':'application/json'};if(token)hdrs['Authorization']=`Bearer ${token}`;
+  const hdrs={'Content-Type':'application/json'};
   try{
     const res=await fetch(`${API}/api/predict/matrix`,{method:'POST',headers:hdrs,body:JSON.stringify({drugs})});
     const data=await res.json();renderMatrix(data);
@@ -1545,38 +1423,6 @@ async function loadProfile(){
 }
 
 // ════════════════════════════════
-// HISTORY
-// ════════════════════════════════
-async function loadHistory(){
-  if(!token){document.getElementById('history-auth-prompt').style.display='block';document.getElementById('history-list').style.display='none';return}
-  document.getElementById('history-auth-prompt').style.display='none';document.getElementById('history-list').style.display='block';
-  try{
-    const res=await fetch(`${API}/api/history`,{headers:{Authorization:`Bearer ${token}`}});
-    const data=await res.json();
-    document.getElementById('history-count').textContent=`${data.length} predictions`;
-    document.getElementById('history-items').innerHTML=data.length
-      ?data.map(h=>{
-          const conf=(h.confidence*100).toFixed(1);
-          const b=h.is_interaction?'<span class="badge badge-danger" style="font-size:.55rem;padding:.1rem .5rem;margin:0">INTERACTION</span>':'<span class="badge badge-safe" style="font-size:.55rem;padding:.1rem .5rem;margin:0">SAFE</span>';
-          return `<div style="background:#fff;border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;margin-bottom:.65rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;box-shadow:var(--shadow);flex-wrap:wrap">
-            <div style="min-width:0;flex:1"><div style="font-family:var(--mono);font-size:.8rem;color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.drug_a_name||h.drug_a} × ${h.drug_b_name||h.drug_b}</div><div style="font-size:.75rem;color:var(--ink3);margin-top:.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.prediction}</div></div>
-            ${b}
-            <div style="text-align:right;flex-shrink:0"><div style="font-family:var(--mono);font-size:.72rem;color:var(--teal);font-weight:600">${conf}%</div><div style="font-family:var(--mono);font-size:.6rem;color:var(--ink3)">${new Date(h.created).toLocaleDateString()}</div></div>
-          </div>`;
-        }).join('')
-      :'<div style="text-align:center;padding:3rem;font-family:var(--mono);font-size:.72rem;color:var(--ink3)">No predictions yet</div>';
-  }catch(e){console.error(e)}
-}
-async function clearHistory(){if(!confirm('Clear all?'))return;await fetch(`${API}/api/history`,{method:'DELETE',headers:{Authorization:`Bearer ${token}`}});loadHistory()}
-function exportHistoryCSV(){
-  fetch(`${API}/api/history`,{headers:{Authorization:`Bearer ${token}`}}).then(r=>r.json()).then(data=>{
-    const hdr='Drug A,Drug B,Prediction,Confidence,Interaction,Date\n';
-    const rows=data.map(h=>`${h.drug_a},${h.drug_b},"${h.prediction}",${(h.confidence*100).toFixed(1)}%,${h.is_interaction?'Yes':'No'},${h.created}`).join('\n');
-    dlText('ddi_history.csv',hdr+rows,'text/csv');
-  });
-}
-
-// ════════════════════════════════
 // EXPORT
 // ════════════════════════════════
 function exportPDF(){
@@ -1616,7 +1462,6 @@ function notify(msg,type='ok'){
 // INIT
 // ════════════════════════════════
 window.addEventListener('DOMContentLoaded',()=>{
-  updateAuthUI();
   fetchAllDrugs();
 });
 </script>

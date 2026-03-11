@@ -486,6 +486,10 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1.5rem 1
 .heatmap-cell{transition:transform 0.1s,filter 0.1s;cursor:default}
 .heatmap-cell:hover{transform:scale(1.18);filter:brightness(1.15)}
 
+#auto-load-zone:hover,#auto-load-zone.drag{
+  border-color:var(--teal);background:rgba(209,250,246,0.35)!important;
+}
+#auto-predict-hint{display:none}
 footer{
   position:relative;z-index:2;text-align:center;
   padding:1.5rem 0 1rem;
@@ -691,23 +695,50 @@ footer span{color:var(--teal)}
     </div>
   </div>
 
+  <!-- AUTO-LOAD ZONE: drop CSV/Excel here or click to upload drug names -->
+  <div id="auto-load-zone" onclick="document.getElementById('namedb-file').click()"
+       ondragover="event.preventDefault();this.classList.add('drag')"
+       ondragleave="this.classList.remove('drag')"
+       ondrop="handleNameDrop(event)"
+       style="border:2px dashed var(--border2);border-radius:14px;padding:1.1rem 1.5rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:all .2s;margin-bottom:1rem;background:rgba(255,255,255,0.55)">
+    <div id="auto-load-icon" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--teal2));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(10,124,113,0.25)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </div>
+    <div style="flex:1;min-width:0">
+      <div style="font-family:var(--sans);font-size:.82rem;font-weight:600;color:var(--ink)" id="auto-load-title">Auto-loading drug names from HuggingFace…</div>
+      <div style="font-family:var(--mono);font-size:.6rem;color:var(--ink3);margin-top:.15rem" id="auto-load-sub">VarshaSekar/Drug_Drug_Prediction · drug_names.csv · or drop a file to override</div>
+    </div>
+    <div id="namedb-status" style="font-family:var(--mono);font-size:.62rem;color:var(--teal);font-weight:500;flex-shrink:0"></div>
+    <input type="file" id="namedb-file" accept=".csv,.xlsx,.xls" style="display:none" onchange="loadNameDB(this)"/>
+  </div>
+
   <div class="card">
-    <span class="card-label">Select Drug Pair</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;flex-wrap:wrap;gap:.5rem">
+      <span class="card-label" style="margin:0">Select Drug Pair</span>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <span id="auto-predict-badge" style="display:none;font-family:var(--mono);font-size:.58rem;background:var(--teal-pale);color:var(--teal);border:1px solid var(--teal-bd);border-radius:999px;padding:.15rem .65rem;letter-spacing:.06em">⚡ Auto-predict ON</span>
+        <div class="topk-wrap" style="padding:.35rem .75rem">
+          <label>Top-K</label>
+          <input type="number" id="topk" min="3" max="15" value="7" style="width:36px"/>
+        </div>
+      </div>
+    </div>
     <div class="grid-2">
       <div id="selector-a"></div>
       <div id="selector-b"></div>
     </div>
+    <!-- Auto-predict hint -->
+    <div id="auto-predict-hint" style="display:none;margin-top:.85rem;padding:.6rem .9rem;background:var(--teal-pale);border:1px solid var(--teal-bd);border-radius:9px;font-family:var(--mono);font-size:.62rem;color:var(--teal);display:flex;align-items:center;gap:.5rem">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5,3 19,12 5,21"/></svg>
+      Select both drugs — prediction runs automatically
+    </div>
   </div>
 
-  <div class="topk-row">
+  <div class="topk-row" id="manual-predict-row">
     <button class="btn btn-primary" id="predict-btn" onclick="runPredict()">
       <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
       Generate Report
     </button>
-    <div class="topk-wrap">
-      <label>Top-K</label>
-      <input type="number" id="topk" min="3" max="15" value="7"/>
-    </div>
     <span id="model-meta" style="font-family:var(--mono);font-size:.6rem;color:var(--ink3)"></span>
   </div>
 
@@ -1210,8 +1241,20 @@ class DrugSelector{
       shown.forEach(d=>{
         const it=document.createElement('div');it.className='drug-option';
         if(this.selected&&this.selected.id===d.id)it.classList.add('selected');
-        const s1=document.createElement('span');s1.textContent=d.id;it.appendChild(s1);
-        if(d.name&&d.name!==d.id){const s2=document.createElement('span');s2.className='drug-option-name';s2.textContent=d.name;it.appendChild(s2)}
+        // Left side: name (large) or id if no name
+        const nameEl=document.createElement('span');
+        nameEl.style.cssText='display:flex;flex-direction:column;gap:1px;min-width:0';
+        const primary=document.createElement('span');
+        primary.textContent=d.name||d.id;
+        primary.style.cssText='font-family:var(--sans);font-size:.78rem;font-weight:600;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px';
+        nameEl.appendChild(primary);
+        if(d.name&&d.name!==d.id){
+          const idTag=document.createElement('span');
+          idTag.textContent=d.id;
+          idTag.style.cssText='font-family:var(--mono);font-size:.58rem;color:var(--ink3);font-weight:400';
+          nameEl.appendChild(idTag);
+        }
+        it.appendChild(nameEl);
         it.addEventListener('click',()=>{this.selectDrug(d);this.close()});
         this.listEl.appendChild(it);
       });
@@ -1220,7 +1263,22 @@ class DrugSelector{
     const tot=filtered.length;
     this.cntEl.textContent=tot>200?`Showing 200 of ${tot.toLocaleString()} — type to filter`:`${tot.toLocaleString()} drug${tot!==1?'s':''}`;
   }
-  selectDrug(d){this.selected=d;this.ctrlEl.textContent=d.id;this.ctrlEl.style.color='var(--ink)';this.ctrlEl.appendChild(this.arrEl)}
+  selectDrug(d){
+    this.selected=d;
+    // Show name if available, fallback to id; display id in small subtitle inside control
+    this.ctrlEl.innerHTML='';
+    if(d.name&&d.name!==d.id){
+      const nameSpan=document.createElement('span');nameSpan.textContent=d.name;nameSpan.style.cssText='font-weight:600;color:var(--ink)';
+      const idSpan=document.createElement('span');idSpan.textContent=' ('+d.id+')';idSpan.style.cssText='font-size:.72em;color:var(--ink3);font-weight:400';
+      this.ctrlEl.appendChild(nameSpan);this.ctrlEl.appendChild(idSpan);
+    }else{
+      this.ctrlEl.textContent=d.id;
+    }
+    this.ctrlEl.style.color='var(--ink)';
+    this.ctrlEl.appendChild(this.arrEl);
+    // Trigger auto-predict if both slots are filled
+    if(typeof _maybeAutoPredict==='function') setTimeout(_maybeAutoPredict,50);
+  }
   getValue(){return this.selected?this.selected.id:''}
   toggle(){this.open?this.close():this.openPanel()}
   openPanel(){
@@ -1254,17 +1312,213 @@ function _addMatrixSel(i){
 // ════════════════════════════════
 // FETCH DRUGS
 // ════════════════════════════════
+// HuggingFace dataset raw URL for drug_names.csv
+const HF_NAMES_URL='https://huggingface.co/datasets/VarshaSekar/Drug_Drug_Prediction/resolve/main/drug_names.csv';
+
 async function fetchAllDrugs(){
+  const m=document.getElementById('model-meta');
+  if(m)m.textContent='Loading…';
   try{
-    const m=document.getElementById('model-meta');if(m)m.textContent='Loading…';
+    // 1. Fetch drug list from API
     let drugs=[];
     const r=await fetch(`${API}/api/drugs?q=&limit=10000`);if(r.ok)drugs=await r.json();
     if(!drugs.length){const r2=await fetch(`${API}/api/drugs?q=&limit=500`);if(r2.ok)drugs=await r2.json()}
     allDrugs=drugs.map(d=>({id:d.id,name:d.name!==d.id?d.name:null}));
+
+    // 2. Auto-fetch drug names from HuggingFace (parallel)
+    fetchHFNames();
+
     initSelectors();
-    const cr=await fetch(`${API}/api/drugs/count`);
-    if(cr.ok){const cd=await cr.json();if(m)m.textContent=`${cd.count.toLocaleString()} drugs · ${cd.classes} classes`}
-  }catch(e){notify('Could not load drug list','err')}
+    try{
+      const cr=await fetch(`${API}/api/drugs/count`);
+      if(cr.ok){const cd=await cr.json();if(m)m.textContent=`${cd.count.toLocaleString()} drugs · ${cd.classes} classes`}
+    }catch(e){}
+  }catch(e){
+    notify('Could not load drug list','err');
+    if(m)m.textContent='';
+  }
+}
+
+async function fetchHFNames(){
+  const status=document.getElementById('namedb-status');
+  const zt=document.getElementById('auto-load-title');
+  const zs=document.getElementById('auto-load-sub');
+  const zi=document.getElementById('auto-load-icon');
+  const zone=document.getElementById('auto-load-zone');
+  try{
+    if(zt) zt.textContent='Fetching drug names from HuggingFace…';
+    if(zs) zs.textContent='VarshaSekar/Drug_Drug_Prediction · drug_names.csv';
+    if(status) status.textContent='Fetching…';
+
+    const res=await fetch(HF_NAMES_URL);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text=await res.text();
+    const rows=_parseCSVText(text);
+    // Use a fake status element for _applyNameMap signature
+    const fakeStatus={textContent:''};
+    _applyNameMap(rows,fakeStatus,'drug_names.csv (HuggingFace)');
+  }catch(e){
+    // HF fetch failed — fall back to localStorage cache silently
+    console.warn('HF names fetch failed:',e.message);
+    loadPersistedNames();
+    if(zt) zt.textContent='Load drug name file to enable auto-predict';
+    if(zs) zs.textContent='Drop your CSV / Excel (id, name columns) · Names persist across sessions';
+    if(status) status.textContent='';
+  }
+}
+
+// ════════════════════════════════
+// DRUG NAME DB — load from user CSV/Excel
+// Maps id→name; merges into allDrugs and re-renders selectors
+// Supports: node_index,id,name,smiles  (any order, header required)
+// ════════════════════════════════
+let autoPredict=false; // becomes true once a name file is loaded
+
+function handleNameDrop(e){
+  e.preventDefault();
+  document.getElementById('auto-load-zone').classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f){const inp=document.getElementById('namedb-file');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;loadNameDB(inp);}
+}
+
+function setAutoPredictUI(on){
+  autoPredict=on;
+  const badge=document.getElementById('auto-predict-badge');
+  const hint=document.getElementById('auto-predict-hint');
+  const row=document.getElementById('manual-predict-row');
+  if(badge){badge.style.display=on?'inline-flex':'none';}
+  if(hint){hint.style.display=on?'flex':'none';}
+  if(row){row.style.display=on?'none':'flex';}
+}
+
+function loadNameDB(inp){
+  const file=inp.files[0];if(!file)return;
+  const status=document.getElementById('namedb-status');
+  status.textContent='Reading…';
+  const isXLS=file.name.match(/\.xlsx?$/i);
+  if(isXLS){
+    // Use SheetJS (loaded inline) — inject it if not present
+    if(!window.XLSX){
+      const sc=document.createElement('script');
+      sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      sc.onload=()=>_parseXLS(file,status);
+      sc.onerror=()=>{status.textContent='SheetJS failed to load';notify('Could not load Excel parser','err')};
+      document.head.appendChild(sc);
+    }else{_parseXLS(file,status)}
+  }else{
+    const r=new FileReader();
+    r.onload=e=>_applyNameMap(_parseCSVText(e.target.result),status,file.name);
+    r.readAsText(file);
+  }
+  inp.value='';
+}
+
+function _parseXLS(file,status){
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+      _applyNameMap(rows,status,file.name);
+    }catch(err){status.textContent='Parse error';notify('Could not parse Excel: '+err.message,'err')}
+  };
+  r.readAsArrayBuffer(file);
+}
+
+function _parseCSVText(text){
+  const lines=text.trim().split('\n');
+  const hdr=lines[0].split(',').map(h=>h.trim().replace(/^"+|"+$/g,'').toLowerCase());
+  return lines.slice(1).filter(Boolean).map(l=>{
+    // Handle quoted fields
+    const cols=[];let cur='',inQ=false;
+    for(const ch of l){if(ch==='"'){inQ=!inQ}else if(ch===','&&!inQ){cols.push(cur);cur=''}else{cur+=ch}}
+    cols.push(cur);
+    const row={};hdr.forEach((h,i)=>{row[h]=(cols[i]||'').trim()});
+    return row;
+  });
+}
+
+function _applyNameMap(rows,status,fname){
+  // Detect columns — support 'id'/'drug_id'/'drugbank_id', 'name'/'drug_name'
+  if(!rows.length){status.textContent='No data found';return}
+  const sample=rows[0];
+  const idCol=Object.keys(sample).find(k=>['id','drug_id','drugbank_id'].includes(k.toLowerCase()));
+  const nameCol=Object.keys(sample).find(k=>['name','drug_name','drugname','common_name'].includes(k.toLowerCase()));
+  if(!idCol||!nameCol){
+    notify('Could not find "id" and "name" columns in file','err');
+    status.textContent='Column error';return;
+  }
+  // Build lookup
+  const map={};let count=0;
+  rows.forEach(r=>{
+    const id=(r[idCol]||'').trim(),nm=(r[nameCol]||'').trim();
+    if(id&&nm){map[id]=nm;count++}
+  });
+  // Merge into allDrugs
+  let enriched=0;
+  allDrugs=allDrugs.map(d=>{
+    if(map[d.id]&&map[d.id]!==d.id){enriched++;return{...d,name:map[d.id]}}
+    return d;
+  });
+  // Also add drugs that exist in the file but weren't in allDrugs
+  const existingIds=new Set(allDrugs.map(d=>d.id));
+  rows.forEach(r=>{
+    const id=(r[idCol]||'').trim(),nm=(r[nameCol]||'').trim();
+    if(id&&nm&&!existingIds.has(id)){allDrugs.push({id,name:nm})}
+  });
+  // Persist to localStorage
+  try{localStorage.setItem('ddi_namedb',JSON.stringify(map))}catch(e){}
+  // Re-render all selectors
+  [selA,selB,selExplore,...matrixSelectors].forEach(s=>{if(s){const prev=s.selected;s.render();if(prev)s.selectDrug(allDrugs.find(d=>d.id===prev.id)||prev)}});
+  status.textContent=`✓ ${count.toLocaleString()} names`;
+  notify(`Loaded ${enriched} drug names from ${fname.split('/').pop()}`,'ok');
+  // Update load zone to "loaded" state
+  const zt=document.getElementById('auto-load-title');
+  const zs=document.getElementById('auto-load-sub');
+  const zi=document.getElementById('auto-load-icon');
+  if(zt) zt.textContent=`${fname.split('/').pop().slice(0,40)} — ${count.toLocaleString()} drug names`;
+  if(zs) zs.textContent='Names loaded · Select two drugs below for automatic prediction';
+  if(zi) zi.style.background='linear-gradient(135deg,#10B981,#0D9488)';
+  const zone=document.getElementById('auto-load-zone');
+  if(zone){zone.style.borderColor='var(--teal-bd)';zone.style.background='rgba(209,250,246,0.3)';}
+  // Enable auto-predict mode
+  setAutoPredictUI(true);
+  // If both selectors already have a value, run immediately
+  _maybeAutoPredict();
+}
+
+// Load persisted name map on startup
+function loadPersistedNames(){
+  try{
+    const raw=localStorage.getItem('ddi_namedb');
+    if(!raw)return;
+    const map=JSON.parse(raw);
+    allDrugs=allDrugs.map(d=>map[d.id]?{...d,name:map[d.id]}:d);
+    const n=Object.keys(map).length;
+    const status=document.getElementById('namedb-status');
+    if(status)status.textContent=`✓ ${n.toLocaleString()} cached`;
+    // Restore auto-predict UI
+    const zt=document.getElementById('auto-load-title');
+    const zs=document.getElementById('auto-load-sub');
+    const zi=document.getElementById('auto-load-icon');
+    if(zt) zt.textContent=`${n.toLocaleString()} drug names loaded from previous session`;
+    if(zs) zs.textContent='Names cached · Select two drugs below for automatic prediction';
+    if(zi) zi.style.background='linear-gradient(135deg,#10B981,#0D9488)';
+    const zone=document.getElementById('auto-load-zone');
+    if(zone){zone.style.borderColor='var(--teal-bd)';zone.style.background='rgba(209,250,246,0.3)';}
+    setAutoPredictUI(true);
+  }catch(e){}
+}
+
+// Auto-predict when both drugs are selected (called by selectors)
+function _maybeAutoPredict(){
+  if(!autoPredict)return;
+  const da=selA&&selA.getValue(), db=selB&&selB.getValue();
+  if(da&&db){
+    clearTimeout(window._autoPredictTimer);
+    window._autoPredictTimer=setTimeout(()=>runPredict(),300);
+  }
 }
 
 // ════════════════════════════════

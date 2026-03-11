@@ -44,25 +44,28 @@ body{
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
-  background-image:url('https://img.freepik.com/premium-photo/closeup-drug-interaction-checker-tool-app-being-used-assess-medication-safety_1327465-53616.jpg?semt=ais_hybrid&w=1920&q=85');
-  background-size:cover;
-  background-position:center top;
-  background-attachment:fixed;
-  background-repeat:no-repeat;
+  background:#0d1a17;
 }
-/* Frosted glass tint over the photo */
-body::before{
-  content:'';
-  position:fixed;inset:0;z-index:0;
-  background:rgba(247,245,240,0.55);
+
+/* ── VIDEO BACKGROUND ── */
+#bg-video{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center center;
+  z-index:-1;
   pointer-events:none;
 }
+/* No overlay — video shows at full clarity */
+body::before{
+  display:none;
+}
+
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--teal-bd);border-radius:99px}
-
-
-
 
 /* ═══════════════════════════════
    NAV
@@ -71,9 +74,10 @@ nav{
   position:sticky;top:0;z-index:200;
   height:58px;
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 1.5rem;
-  background:rgba(247,245,240,0.92);
-  backdrop-filter:blur(20px) saturate(1.6);
+  padding:0 1rem;
+  background:rgba(247,245,240,0.85);
+  backdrop-filter:blur(24px) saturate(1.8);
+  -webkit-backdrop-filter:blur(24px) saturate(1.8);
   border-bottom:1px solid var(--border2);
   box-shadow:0 1px 0 rgba(0,0,0,0.04);
 }
@@ -104,7 +108,6 @@ nav{
 }
 .nav-btn:hover{color:var(--ink);background:rgba(0,0,0,0.05)}
 .nav-btn.active{background:var(--teal);color:#fff;box-shadow:0 2px 8px rgba(10,124,113,0.3)}
-.nav-auth{display:flex;gap:0.4rem;align-items:center;flex-shrink:0}
 
 /* ═══════════════════════════════
    BUTTONS
@@ -129,8 +132,8 @@ nav{
 /* ═══════════════════════════════
    LAYOUT
 ═══════════════════════════════ */
-main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1.5rem 1rem 5rem}
-@media(min-width:600px){main{padding:2rem 1.5rem 5rem}}
+main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1rem 0.75rem 5rem}
+@media(min-width:600px){main{padding:1.5rem 1.25rem 5rem}}
 @media(min-width:900px){main{padding:2rem 2rem 5rem}}
 .page{display:none;animation:fadeUp 0.3s ease}
 .page.active{display:block}
@@ -140,46 +143,50 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1.5rem 1
    HERO
 ═══════════════════════════════ */
 .hero{
-  padding:2.5rem 0 2rem;
-  margin-bottom:2rem;
+  padding:1.5rem 0 1.25rem;
+  margin-bottom:1.25rem;
   position:relative;
 }
 .hero-eyebrow{
-  font-family:var(--mono);font-size:0.65rem;
-  letter-spacing:0.25em;text-transform:uppercase;
-  color:var(--teal);margin-bottom:0.7rem;
+  font-family:var(--mono);font-size:0.6rem;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:0.5rem;
   display:flex;align-items:center;gap:0.5rem;
 }
-.hero-eyebrow::before{content:'';width:24px;height:2px;background:var(--teal);border-radius:2px}
+.hero-eyebrow::before{content:'';width:20px;height:2px;background:var(--teal);border-radius:2px}
 .hero-title{
   font-family:var(--display);
-  font-size:clamp(2rem,5vw,3.4rem);
-  font-weight:600;line-height:1.08;
-  color:var(--ink);letter-spacing:-0.02em;margin-bottom:0.65rem;
+  font-size:clamp(1.65rem,5vw,3.4rem);
+  font-weight:600;line-height:1.1;
+  color:var(--ink);letter-spacing:-0.02em;margin-bottom:0.55rem;
+  text-shadow:0 1px 12px rgba(255,255,255,0.6);
 }
 .hero-title em{font-style:italic;color:var(--teal)}
 .hero-sub{
-  color:var(--ink3);font-size:0.82rem;
+  color:var(--ink2);font-size:0.78rem;
   font-family:var(--mono);
-  display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;
+  display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;
 }
 .hero-pill{
-  background:var(--teal-pale);color:var(--teal);
+  background:rgba(209,250,246,0.88);color:var(--teal);
   border:1px solid var(--teal-bd);border-radius:999px;
-  padding:0.2rem 0.7rem;font-size:0.62rem;font-family:var(--mono);
+  padding:0.18rem 0.6rem;font-size:0.58rem;font-family:var(--mono);
   letter-spacing:0.08em;
+  backdrop-filter:blur(6px);
 }
 
 /* ═══════════════════════════════
    CARD
 ═══════════════════════════════ */
 .card{
-  background:var(--bg2);
-  border:1px solid var(--border);
+  background:rgba(255,255,255,0.82);
+  border:1px solid rgba(255,255,255,0.6);
   border-radius:18px;
   padding:1.35rem 1.5rem;
   margin-bottom:1rem;
   box-shadow:var(--shadow);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   transition:box-shadow 0.2s,border-color 0.2s;
   position:relative;
 }
@@ -196,7 +203,7 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1.5rem 1
 /* ═══════════════════════════════
    DRUG SELECTOR
 ═══════════════════════════════ */
-.drug-selector-wrap{position:relative}
+.drug-selector-wrap{position:relative;isolation:isolate}
 .drug-selector-label{
   display:block;font-family:var(--mono);font-size:0.58rem;
   letter-spacing:0.2em;text-transform:uppercase;
@@ -219,20 +226,20 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1.5rem 1
   box-shadow:0 0 0 3px rgba(10,124,113,0.12),inset 0 1px 3px rgba(0,0,0,0.04);
 }
 .drug-control-arrow{
-  position:absolute;right:0.9rem;top:50%;transform:translateY(-50%);
+  position:absolute;right:0.9rem;top:2.55rem;
   font-size:0.65rem;color:var(--ink3);pointer-events:none;
   transition:transform 0.15s;
 }
-.drug-control-arrow.open{transform:translateY(-50%) rotate(180deg)}
+.drug-control-arrow.open{transform:rotate(180deg)}
 .drug-panel{
   display:none;
-  position:absolute;top:calc(100% + 6px);left:0;right:0;
+  position:fixed;
   background:#FFFFFF;
   border:1.5px solid var(--border2);
   border-radius:14px;
-  z-index:9999;
-  box-shadow:0 8px 32px rgba(0,0,0,0.16),0 2px 8px rgba(0,0,0,0.08);
-  overflow:hidden;max-height:280px;
+  z-index:99999;
+  box-shadow:0 12px 40px rgba(0,0,0,0.22),0 2px 8px rgba(0,0,0,0.10);
+  overflow:hidden;
   flex-direction:column;
 }
 .drug-panel.open{display:flex}
@@ -289,7 +296,7 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1.5rem 1
 ═══════════════════════════════ */
 #stream-overlay{
   display:none;position:fixed;inset:0;
-  background:rgba(247,245,240,0.96);backdrop-filter:blur(20px);
+  background:rgba(247,245,240,0.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
   z-index:500;align-items:center;justify-content:center;
 }
 #stream-overlay.show{display:flex}
@@ -310,11 +317,12 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1.5rem 1
 ═══════════════════════════════ */
 .metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:0.75rem;margin-bottom:1.25rem}
 @media(max-width:700px){.metrics{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:360px){.metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:360px){.metrics{grid-template-columns:1fr}}
 .metric{
-  background:#fff;border:1px solid var(--border);
+  background:rgba(255,255,255,0.82);border:1px solid rgba(255,255,255,0.6);
   border-radius:14px;padding:1rem 1.1rem;
   box-shadow:var(--shadow);transition:box-shadow 0.2s;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
 .metric:hover{box-shadow:var(--shadow2)}
 .metric-label{font-family:var(--mono);font-size:0.54rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:0.35rem}
@@ -412,34 +420,6 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1.5rem 1
 .data-table tbody tr:last-child td{border-bottom:none}
 
 /* ═══════════════════════════════
-   AUTH MODAL
-═══════════════════════════════ */
-#auth-modal{
-  display:none;position:fixed;inset:0;
-  background:rgba(247,245,240,0.82);backdrop-filter:blur(12px);
-  z-index:600;align-items:center;justify-content:center;
-}
-#auth-modal.show{display:flex}
-.auth-box{
-  background:#fff;border:1px solid var(--border2);
-  border-radius:22px;padding:2.4rem;
-  width:min(400px,94vw);box-shadow:var(--shadow2);
-}
-.auth-title{font-family:var(--display);font-size:1.8rem;font-weight:600;margin-bottom:0.3rem}
-.auth-sub{color:var(--ink3);font-size:0.82rem;margin-bottom:1.5rem}
-.auth-field{margin-bottom:1rem}
-.auth-field label{display:block;font-family:var(--mono);font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:0.4rem}
-.auth-field input{
-  width:100%;padding:0.72rem 1rem;
-  background:var(--bg3);border:1.5px solid var(--border);
-  border-radius:10px;color:var(--ink);
-  font-family:var(--sans);font-size:0.85rem;outline:none;
-  transition:border-color 0.15s;
-}
-.auth-field input:focus{border-color:var(--teal)}
-.auth-err{color:var(--rose);font-family:var(--mono);font-size:0.7rem;margin-top:0.35rem;min-height:1.2em}
-
-/* ═══════════════════════════════
    NOTIFICATIONS
 ═══════════════════════════════ */
 #notif{position:fixed;bottom:1.5rem;right:1rem;z-index:700;display:flex;flex-direction:column;gap:0.5rem}
@@ -469,14 +449,7 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1.5rem 1
 .heatmap-cell{transition:transform 0.1s,filter 0.1s;cursor:default}
 .heatmap-cell:hover{transform:scale(1.18);filter:brightness(1.15)}
 
-footer{
-  position:relative;z-index:2;text-align:center;
-  padding:1.5rem 0 1rem;
-  font-family:var(--mono);font-size:0.55rem;
-  color:var(--ink3);letter-spacing:0.2em;text-transform:uppercase;
-  border-top:1px solid var(--border);margin-top:2rem;
-}
-footer span{color:var(--teal)}
+/* footer: completely removed */
 
 /* ═══════════════════════════════
    MOBILE NAV HAMBURGER
@@ -486,19 +459,30 @@ footer span{color:var(--teal)}
   padding:0.35rem;color:var(--ink2);
 }
 @media(max-width:640px){
-  .nav-links{display:none;position:fixed;top:58px;left:0;right:0;z-index:190;background:#fff;border-bottom:1px solid var(--border2);flex-direction:column;padding:0.5rem;gap:0.2rem;box-shadow:var(--shadow2)}
+  .nav-links{display:none;position:fixed;top:58px;left:0;right:0;z-index:190;
+    background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border2);flex-direction:column;padding:0.5rem;gap:0.2rem;box-shadow:var(--shadow2)}
   .nav-links.mobile-open{display:flex}
-  .nav-btn{padding:0.6rem 1rem;text-align:left;border-radius:8px;font-size:0.82rem}
+  .nav-btn{padding:0.65rem 1rem;text-align:left;border-radius:8px;font-size:0.82rem}
   .ham-btn{display:flex}
-  .nav-auth .btn-ghost{display:none}
+  .grid-2{grid-template-columns:1fr !important}
+  .drug-panel{max-height:240px}
+  .card{padding:1rem 1rem;border-radius:14px}
+}
+@media(max-width:400px){
+  .nav-brand span{display:none}
+  .hero-title{font-size:1.5rem}
+  .metric{padding:0.75rem 0.85rem}
+  .metric-value{font-size:1.1rem}
 }
 
 /* Drug loading state */
 .drug-loading-bar{
   display:flex;align-items:center;gap:0.75rem;
   padding:0.65rem 1rem;
-  background:rgba(255,255,255,0.7);
-  border:1px solid var(--border);
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.6);
   border-radius:10px;
   margin-bottom:1rem;
   font-family:var(--mono);font-size:0.62rem;color:var(--ink3);
@@ -508,26 +492,18 @@ footer span{color:var(--teal)}
 </head>
 <body>
 
-
-
-<!-- AUTH MODAL -->
-<div id="auth-modal">
-  <div class="auth-box">
-    <div class="auth-title" id="auth-title">Sign in</div>
-    <div class="auth-sub">Access your prediction history</div>
-    <div class="auth-field"><label>Username</label><input id="auth-user" placeholder="username" autocomplete="username"/></div>
-    <div class="auth-field"><label>Password</label><input id="auth-pass" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
-    <div class="auth-err" id="auth-err"></div>
-    <div style="display:flex;gap:.75rem;margin-top:1.25rem">
-      <button class="btn btn-primary" id="auth-submit-btn" onclick="submitAuth()" style="flex:1">Sign in</button>
-      <button class="btn btn-ghost" onclick="closeAuth()">Cancel</button>
-    </div>
-    <div style="text-align:center;margin-top:1rem;font-family:var(--mono);font-size:.6rem;color:var(--ink3)">
-      <span id="auth-switch-text">No account? </span>
-      <a href="#" style="color:var(--teal);font-weight:600" id="auth-switch-link" onclick="toggleAuthMode();return false">Sign up</a>
-    </div>
-  </div>
-</div>
+<!-- ── BACKGROUND VIDEO ── -->
+<!-- Replace the src below with your own video URL or local path -->
+<video
+  id="bg-video"
+  autoplay
+  muted
+  loop
+  playsinline
+  poster="https://www.shutterstock.com/shutterstock/videos/3911150453/thumb/1.jpg?ip=x480"
+>
+  <source src="https://www.shutterstock.com/shutterstock/videos/3934105123/preview/stock-footage-blue-green-pill-capsules-isolated-analgesic-pile-painkiller-drugs-sedative-pills-group-medicine.webm" type="video/webm">
+</video>
 
 <!-- STREAM OVERLAY -->
 <div id="stream-overlay">
@@ -554,15 +530,10 @@ footer span{color:var(--teal)}
     <button class="nav-btn" onclick="showPage('batch',this)">Batch</button>
     <button class="nav-btn" onclick="showPage('matrix',this)">Matrix</button>
     <button class="nav-btn" onclick="showPage('explore',this)">Explore</button>
-    <button class="nav-btn" onclick="showPage('history',this)">History</button>
-    <button class="nav-btn" onclick="showPage('medicine',this)">💊 Medicine</button>
   </div>
-  <div style="display:flex;align-items:center;gap:0.4rem">
-    <div class="nav-auth" id="nav-auth"></div>
-    <button class="ham-btn" id="ham-btn" onclick="toggleMobileNav()" aria-label="Menu">
-      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-  </div>
+  <button class="ham-btn" id="ham-btn" onclick="toggleMobileNav()" aria-label="Menu">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </nav>
 
 <main>
@@ -579,7 +550,6 @@ footer span{color:var(--teal)}
     </div>
   </div>
 
-  <!-- Drug loading indicator (replaces auto-load zone, hidden after load) -->
   <div id="drug-load-bar" class="drug-loading-bar">
     <div class="spinner"></div>
     <span id="drug-load-msg">Loading 9,495 drugs from DrugBank…</span>
@@ -717,139 +687,17 @@ DB00945,DB00682</pre>
   <div id="explore-result" style="display:none;margin-top:1rem"></div>
 </div>
 
-<!-- ═══ PAGE: HISTORY ═══ -->
-<div class="page" id="page-history">
-  <div class="hero">
-    <div class="hero-eyebrow">Prediction Log</div>
-    <div class="hero-title">Your <em>History.</em></div>
-    <div class="hero-sub"><span class="hero-pill">Signed-in users</span><span class="hero-pill">CSV Export</span></div>
-  </div>
-  <div id="history-auth-prompt" style="display:none">
-    <div class="card" style="text-align:center;padding:3rem">
-      <div style="font-size:3rem;margin-bottom:1rem;opacity:.3">🔐</div>
-      <div style="font-size:.82rem;color:var(--ink3);margin-bottom:1.25rem">Sign in to save and view your prediction history</div>
-      <button class="btn btn-primary" onclick="openAuth('login')">Sign in</button>
-    </div>
-  </div>
-  <div id="history-list" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
-      <span style="font-family:var(--mono);font-size:.62rem;color:var(--ink3)" id="history-count"></span>
-      <div style="display:flex;gap:.5rem">
-        <button class="btn btn-ghost btn-sm" onclick="exportHistoryCSV()">Export CSV</button>
-        <button class="btn btn-ghost btn-sm" style="color:var(--rose)" onclick="clearHistory()">Clear</button>
-      </div>
-    </div>
-    <div id="history-items"></div>
-  </div>
-</div>
-
-<!-- ═══ PAGE: MEDICINE ═══ -->
-<div class="page" id="page-medicine">
-  <div class="hero">
-    <div class="hero-eyebrow">Tablet / Brand Name Lookup</div>
-    <div class="hero-title">Enter <em>Medicine</em><br/>names to check.</div>
-    <div class="hero-sub">
-      <span class="hero-pill">RxNorm API</span>
-      <span class="hero-pill">Brand → Generic</span>
-      <span class="hero-pill">DrugBank Match</span>
-    </div>
-  </div>
-
-  <!-- How it works banner -->
-  <div style="background:rgba(10,124,113,0.06);border:1px solid var(--teal-bd);border-radius:14px;padding:.9rem 1.2rem;margin-bottom:1.25rem;display:flex;align-items:flex-start;gap:.85rem">
-    <span style="font-size:1.4rem;flex-shrink:0">💡</span>
-    <div>
-      <div style="font-family:var(--mono);font-size:.62rem;font-weight:600;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.2rem">How it works</div>
-      <div style="font-size:.8rem;color:var(--ink2);line-height:1.6">
-        Enter the <strong>brand or generic name</strong> of any tablet/medicine (e.g. <em>Tylenol</em>, <em>Advil</em>, <em>Aspirin</em>, <em>Metformin</em>).
-        We query <strong>RxNorm</strong> to find the active ingredient, then match it to our <strong>DrugBank</strong> database and predict the interaction.
-      </div>
-    </div>
-  </div>
-
-  <div class="grid-2" style="margin-bottom:1rem">
-    <!-- Tablet A -->
-    <div class="card" id="med-card-a">
-      <span class="card-label">Tablet / Medicine A</span>
-      <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
-        <input id="med-input-a" type="text" placeholder="e.g. Tylenol, Aspirin, Metformin…"
-          style="flex:1;padding:.68rem .9rem;border:1.5px solid var(--border2);border-radius:10px;
-          font-family:var(--sans);font-size:.84rem;color:var(--ink);outline:none;transition:border-color .15s;background:#fff"
-          onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--border2)'"
-          onkeydown="if(event.key==='Enter')lookupMedicine('a')"/>
-        <button class="btn btn-primary btn-sm" onclick="lookupMedicine('a')" id="med-btn-a">Search</button>
-      </div>
-      <div id="med-result-a" style="min-height:48px"></div>
-    </div>
-    <!-- Tablet B -->
-    <div class="card" id="med-card-b">
-      <span class="card-label">Tablet / Medicine B</span>
-      <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
-        <input id="med-input-b" type="text" placeholder="e.g. Warfarin, Ibuprofen, Atorvastatin…"
-          style="flex:1;padding:.68rem .9rem;border:1.5px solid var(--border2);border-radius:10px;
-          font-family:var(--sans);font-size:.84rem;color:var(--ink);outline:none;transition:border-color .15s;background:#fff"
-          onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--border2)'"
-          onkeydown="if(event.key==='Enter')lookupMedicine('b')"/>
-        <button class="btn btn-primary btn-sm" onclick="lookupMedicine('b')" id="med-btn-b">Search</button>
-      </div>
-      <div id="med-result-b" style="min-height:48px"></div>
-    </div>
-  </div>
-
-  <!-- Matched summary + Predict button -->
-  <div id="med-matched-summary" style="display:none;margin-bottom:1rem">
-    <div class="card" style="background:rgba(10,124,113,0.04);border-color:var(--teal-bd)">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem">
-        <div>
-          <div style="font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:.5rem">Resolved Drug Pair</div>
-          <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
-            <span id="med-summary-a" style="font-family:var(--sans);font-size:.9rem;font-weight:600;color:var(--ink)"></span>
-            <span style="color:var(--ink3);font-size:1.1rem">↔</span>
-            <span id="med-summary-b" style="font-family:var(--sans);font-size:.9rem;font-weight:600;color:var(--ink)"></span>
-          </div>
-        </div>
-        <button class="btn btn-primary" id="med-predict-btn" onclick="runMedicinePredict()">
-          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-          Check Interaction
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Prediction result (reuses same render) -->
-  <div id="med-predict-result" style="display:none">
-    <div class="metrics" id="med-predict-metrics"></div>
-    <div class="grid-2">
-      <div class="card result-card" id="med-result-main-card"></div>
-      <div class="card">
-        <span class="card-label">Probability Distribution</span>
-        <div id="med-prob-bars"></div>
-      </div>
-    </div>
-    <div class="card" style="margin-top:1rem">
-      <span class="card-label">Export</span>
-      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
-        <button class="btn btn-outline" onclick="exportMedicinePDF()">📄 PDF Report</button>
-        <button class="btn btn-ghost" onclick="exportMedicineJSON()">{} JSON</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 </main>
-<footer>DDI Intelligence Platform <span>·</span> PyTorch Geometric <span>·</span> R-GCN <span>·</span> DrugBank 5.x</footer>
 
 <script>
 // ════════════════════════════════
 // NAME HELPERS
 // ════════════════════════════════
-/** Returns the human-readable name for a DrugBank ID, or the ID as fallback */
 function getDrugLabel(id){
   if(!id) return '';
   const d=allDrugs.find(x=>x.id===id);
   return (d&&d.name) ? d.name : id;
 }
-/** Enrich nodes from API so labels show drug names instead of raw IDs */
 function enrichNodes(nodes){
   return (nodes||[]).map(n=>{
     const lbl=/^DB\d{5}$/.test(n.id||'') ? getDrugLabel(n.id) : (n.label||n.id||'');
@@ -858,7 +706,7 @@ function enrichNodes(nodes){
 }
 
 // ════════════════════════════════
-// FORCE GRAPH
+// STATIC GRAPH (pre-settled, no animation)
 // ════════════════════════════════
 class ForceGraph{
   constructor(container,nodes,edges,opts={}){
@@ -884,26 +732,31 @@ class ForceGraph{
     this.container.style.position='relative';
     this.container.appendChild(this.tip);
     this.ctx=this.canvas.getContext('2d');
+
+    // Place nodes using golden-angle sunflower spiral for good initial spread
     const phi=Math.PI*(3-Math.sqrt(5));
     this.nodes=this.rawNodes.map((n,i)=>{
-      const y=1-(i/Math.max(this.rawNodes.length-1,1))*2;
-      const r=Math.sqrt(Math.max(0,1-y*y));
-      const th=phi*i,R=Math.min(W,H)*0.28;
-      let x=W/2+Math.cos(th)*r*R,y2=H/2+y*R;
-      if(n.type==='drug_a'){x=W/2-90;y2=H/2}
-      if(n.type==='drug_b'){x=W/2+90;y2=H/2}
-      return{...n,x,y:y2,vx:0,vy:0,fixed:false};
+      const t=i/Math.max(this.rawNodes.length-1,1);
+      const r=Math.sqrt(t)*Math.min(W,H)*0.38;
+      const th=phi*i;
+      let x=W/2+Math.cos(th)*r, y=H/2+Math.sin(th)*r;
+      if(n.type==='drug_a'){x=W/2-Math.min(W,H)*0.22;y=H/2}
+      if(n.type==='drug_b'){x=W/2+Math.min(W,H)*0.22;y=H/2}
+      return{...n,x,y,vx:0,vy:0,fixed:false};
     });
     this.edges=this.rawEdges;
     this.nodeMap={};this.nodes.forEach(n=>this.nodeMap[n.id]=n);
-    this._animate=this._animate.bind(this);
+
+    // Run physics silently for many iterations to settle layout
+    for(let iter=0;iter<600;iter++) this._tick(iter);
+    // One final pass with zero velocity to freeze
+    this.nodes.forEach(n=>{n.vx=0;n.vy=0});
+    // Draw once, static
+    this._draw();
     this._bindEvents();
-    this.frame=0;this.MAX=300;
-    requestAnimationFrame(this._animate);
   }
-  _animate(){if(this.frame++<this.MAX)requestAnimationFrame(this._animate);this._tick();this._draw()}
-  _tick(){
-    const REPEL=5500,SPRING=0.038,IDEAL=100,DAMP=0.80;
+  _tick(iter){
+    const REPEL=4800, SPRING=0.042, IDEAL=95, DAMP=iter<100?0.45:iter<300?0.6:0.72;
     for(let i=0;i<this.nodes.length;i++)for(let j=i+1;j<this.nodes.length;j++){
       const a=this.nodes[i],b=this.nodes[j];
       const dx=b.x-a.x||.1,dy=b.y-a.y||.1,d2=dx*dx+dy*dy||1,d=Math.sqrt(d2);
@@ -920,9 +773,9 @@ class ForceGraph{
     const CX=this.W/2,CY=this.H/2;
     this.nodes.forEach(n=>{
       if(n.fixed)return;
-      n.vx+=(CX-n.x)*.003;n.vy+=(CY-n.y)*.003;
+      n.vx+=(CX-n.x)*.002;n.vy+=(CY-n.y)*.002;
       n.x+=n.vx;n.y+=n.vy;n.vx*=DAMP;n.vy*=DAMP;
-      const pad=(this.opts.nodeRadius[n.type]||8)+4;
+      const pad=(this.opts.nodeRadius[n.type]||8)+6;
       n.x=Math.max(pad,Math.min(this.W-pad,n.x));
       n.y=Math.max(pad,Math.min(this.H-pad,n.y));
     });
@@ -932,8 +785,10 @@ class ForceGraph{
     const ctx=this.ctx,W=this.W,H=this.H;
     ctx.clearRect(0,0,W,H);
     ctx.fillStyle=this.opts.bgColor;ctx.fillRect(0,0,W,H);
+    // subtle dot grid
     ctx.fillStyle='rgba(0,0,0,0.04)';
     for(let x=30;x<W;x+=50)for(let y=30;y<H;y+=50){ctx.beginPath();ctx.arc(x,y,0.8,0,Math.PI*2);ctx.fill()}
+    // edges
     this.edges.forEach(e=>{
       const a=this.nodeMap[e.from||e.source],b=this.nodeMap[e.to||e.target];
       if(!a||!b)return;
@@ -943,6 +798,7 @@ class ForceGraph{
       ctx.save();ctx.strokeStyle=grad;ctx.lineWidth=e.weight?Math.max(0.8,e.weight*2.5):1.2;
       ctx.setLineDash(e.dashed?[5,4]:[]);ctx.globalAlpha=0.75;
       ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore();
+      // arrowhead
       const ang=Math.atan2(b.y-a.y,b.x-a.x),sz=(this.opts.nodeRadius[b.type]||7)+4;
       const tx=b.x-sz*Math.cos(ang),ty=b.y-sz*Math.sin(ang);
       ctx.save();ctx.fillStyle=col;ctx.globalAlpha=0.6;
@@ -960,56 +816,110 @@ class ForceGraph{
         ctx.fillText(e.label,0,-5);ctx.restore();
       }
     });
+    // nodes
     this.nodes.forEach(n=>{
       const col=this.opts.nodeColor[n.type]||this.opts.nodeColor.default;
       const sz=this.opts.nodeRadius[n.type]||this.opts.nodeRadius.default||7;
-      const isMain=n.type==='drug_a'||n.type==='drug_b';
+      const isMain=n.type==='drug_a'||n.type==='drug_b'||/^drug_slot_/.test(n.type||'');
       const rgb=this._hexToRgb(col);
+
+      // Outer glow for main/shared nodes
       if(isMain||n.type==='shared'){
-        const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,sz*2.8);
-        g.addColorStop(0,`rgba(${rgb.r},${rgb.g},${rgb.b},0.2)`);
+        const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,sz*3.2);
+        g.addColorStop(0,`rgba(${rgb.r},${rgb.g},${rgb.b},0.22)`);
         g.addColorStop(1,`rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
-        ctx.beginPath();ctx.arc(n.x,n.y,sz*2.8,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+        ctx.beginPath();ctx.arc(n.x,n.y,sz*3.2,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
       }
-      ctx.save();ctx.shadowColor='rgba(0,0,0,0.12)';ctx.shadowBlur=8;ctx.shadowOffsetY=2;
-      ctx.beginPath();ctx.arc(n.x,n.y,sz+2.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
-      ctx.restore();
-      const ng=ctx.createRadialGradient(n.x-sz*.3,n.y-sz*.3,0,n.x,n.y,sz);
-      ng.addColorStop(0,col);ng.addColorStop(1,`rgba(${Math.max(0,rgb.r-30)},${Math.max(0,rgb.g-30)},${Math.max(0,rgb.b-30)},0.85)`);
-      ctx.beginPath();ctx.arc(n.x,n.y,sz,0,Math.PI*2);ctx.fillStyle=ng;ctx.fill();
-      ctx.strokeStyle=col+'AA';ctx.lineWidth=1.5;ctx.stroke();
-      ctx.beginPath();ctx.arc(n.x-sz*.28,n.y-sz*.3,sz*.32,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.35)';ctx.fill();
-      const lbl=n.label&&n.label.length>14?n.label.slice(0,13)+'…':n.label||'';
+
+      // White border ring
       ctx.save();
-      ctx.font=isMain?`600 ${sz>=16?11:9}px Plus Jakarta Sans,sans-serif`:`${sz>=10?9:8}px Plus Jakarta Sans,sans-serif`;
-      ctx.fillStyle=isMain?col:'#52525B';ctx.textAlign='center';ctx.textBaseline='top';
-      ctx.shadowColor='rgba(255,255,255,0.9)';ctx.shadowBlur=3;
-      ctx.fillText(lbl,n.x,n.y+sz+4);ctx.restore();
+      ctx.shadowColor='rgba(0,0,0,0.18)';ctx.shadowBlur=10;ctx.shadowOffsetY=3;
+      ctx.beginPath();ctx.arc(n.x,n.y,sz+3,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,0.95)';ctx.fill();
+      ctx.restore();
+
+      // Main node fill — rich gradient
+      const ng=ctx.createRadialGradient(n.x-sz*.35,n.y-sz*.35,0,n.x+sz*.2,n.y+sz*.2,sz*1.6);
+      ng.addColorStop(0,`rgba(${Math.min(255,rgb.r+50)},${Math.min(255,rgb.g+50)},${Math.min(255,rgb.b+50)},1)`);
+      ng.addColorStop(0.5,col);
+      ng.addColorStop(1,`rgba(${Math.max(0,rgb.r-40)},${Math.max(0,rgb.g-40)},${Math.max(0,rgb.b-40)},0.9)`);
+      ctx.beginPath();ctx.arc(n.x,n.y,sz,0,Math.PI*2);
+      ctx.fillStyle=ng;ctx.fill();
+
+      // Colored border
+      ctx.strokeStyle=col;ctx.lineWidth=isMain?2:1.2;
+      ctx.globalAlpha=0.7;ctx.stroke();ctx.globalAlpha=1;
+
+      // Shine highlight
+      const shine=ctx.createRadialGradient(n.x-sz*.3,n.y-sz*.38,0,n.x-sz*.1,n.y-sz*.1,sz*.7);
+      shine.addColorStop(0,'rgba(255,255,255,0.55)');
+      shine.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.beginPath();ctx.arc(n.x,n.y,sz,0,Math.PI*2);
+      ctx.fillStyle=shine;ctx.fill();
+
+      // Label below node
+      const rawLbl=n.label||'';
+      const isDbId=/^DB\d{5}$/.test(n.id||'');
+      const showId=isMain&&isDbId&&rawLbl!==n.id;
+      const lbl=rawLbl.length>16?rawLbl.slice(0,15)+'…':rawLbl;
+
+      // Label background pill
+      if(lbl){
+        const fontSize=isMain?(sz>=16?11:10):(sz>=10?9:8);
+        ctx.font=isMain?`700 ${fontSize}px Plus Jakarta Sans,sans-serif`:`500 ${fontSize}px Plus Jakarta Sans,sans-serif`;
+        const tw=ctx.measureText(lbl).width;
+        const lx=n.x-tw/2-4, ly=n.y+sz+5;
+        const lh=fontSize+6;
+        ctx.save();
+        ctx.fillStyle='rgba(255,255,255,0.88)';
+        ctx.beginPath();
+        ctx.roundRect?ctx.roundRect(lx,ly,tw+8,lh,4):ctx.rect(lx,ly,tw+8,lh);
+        ctx.fill();
+        ctx.fillStyle=isMain?col:'#3F3F46';
+        ctx.textAlign='center';ctx.textBaseline='top';
+        ctx.fillText(lbl,n.x,ly+3);
+        if(showId){
+          ctx.font=`400 ${sz>=16?9:8}px Fira Code,monospace`;
+          const iw=ctx.measureText(n.id).width;
+          const iy=ly+lh+2;
+          ctx.fillStyle='rgba(255,255,255,0.82)';
+          ctx.beginPath();
+          ctx.roundRect?ctx.roundRect(n.x-iw/2-3,iy,iw+6,13,3):ctx.rect(n.x-iw/2-3,iy,iw+6,13);
+          ctx.fill();
+          ctx.fillStyle='rgba(82,82,91,0.85)';
+          ctx.fillText(n.id,n.x,iy+2);
+        }
+        ctx.restore();
+      }
     });
   }
   _bindEvents(){
     let drag=null;
     this.canvas.addEventListener('mousemove',e=>{
       const rc=this.canvas.getBoundingClientRect(),mx=e.clientX-rc.left,my=e.clientY-rc.top;
-      if(drag){drag.x=mx;drag.y=my;drag.vx=drag.vy=0;if(this.frame>=this.MAX){this.frame=this.MAX-20;requestAnimationFrame(this._animate)}return}
+      if(drag){drag.x=mx;drag.y=my;drag.vx=drag.vy=0;this._draw();return}
       let hit=null;
       for(const n of this.nodes){const sz=(this.opts.nodeRadius[n.type]||7)+5;if((mx-n.x)**2+(my-n.y)**2<=sz*sz){hit=n;break}}
       if(hit){
         this.tip.style.display='block';this.tip.style.left=(mx+12)+'px';this.tip.style.top=(my-8)+'px';
-        this.tip.innerHTML=`<b style="color:var(--teal)">${hit.label||hit.id}</b>${hit.meta?`<br/><span style="color:var(--ink3)">${hit.meta}</span>`:''}`;
+        this.tip.innerHTML=`<b style="color:var(--teal)">${hit.label||hit.id}</b>${(hit.id&&hit.label&&hit.id!==hit.label)?`<br/><span style="color:var(--ink3);font-size:.58rem">${hit.id}</span>`:''}${hit.meta?`<br/><span style="color:var(--ink3)">${hit.meta}</span>`:''}`;
         this.canvas.style.cursor='pointer';
-        if(this.frame>=this.MAX){this.frame=this.MAX-40;requestAnimationFrame(this._animate)}
       }else{this.tip.style.display='none';this.canvas.style.cursor='default'}
     });
     this.canvas.addEventListener('mouseleave',()=>{this.tip.style.display='none'});
     this.canvas.addEventListener('mousedown',e=>{
       const rc=this.canvas.getBoundingClientRect(),mx=e.clientX-rc.left,my=e.clientY-rc.top;
-      for(const n of this.nodes){const sz=(this.opts.nodeRadius[n.type]||7)+5;if((mx-n.x)**2+(my-n.y)**2<=sz*sz){drag=n;n.fixed=true;if(this.frame>=this.MAX){this.frame=this.MAX-80;requestAnimationFrame(this._animate)}break}}
+      for(const n of this.nodes){const sz=(this.opts.nodeRadius[n.type]||7)+5;if((mx-n.x)**2+(my-n.y)**2<=sz*sz){drag=n;n.fixed=true;break}}
     });
-    window.addEventListener('mousemove',e=>{if(!drag)return;const rc=this.canvas.getBoundingClientRect();drag.x=e.clientX-rc.left;drag.y=e.clientY-rc.top;drag.vx=drag.vy=0});
-    window.addEventListener('mouseup',()=>{if(drag){drag.fixed=false;drag=null}});
+    window.addEventListener('mousemove',e=>{
+      if(!drag)return;
+      const rc=this.canvas.getBoundingClientRect();
+      drag.x=e.clientX-rc.left;drag.y=e.clientY-rc.top;drag.vx=drag.vy=0;
+      this._draw();
+    });
+    window.addEventListener('mouseup',()=>{if(drag){drag.fixed=false;drag=null;this._draw()}});
   }
-  resume(f=80){this.frame=Math.max(0,this.MAX-f);requestAnimationFrame(this._animate)}
+  resume(){this._draw()}
 }
 
 // ════════════════════════════════
@@ -1073,7 +983,7 @@ async function buildMatrixKnowledgeSubgraph(wrap, drugs, pairs){
           dashed: !p.is_interaction
         });
       }
-    }catch(e){ /* skip failed pair */ }
+    }catch(e){ /* skip */ }
   }
   drugs.forEach((id,i)=>{
     if(!nodeMap[id]){
@@ -1110,19 +1020,16 @@ async function buildMatrixKnowledgeSubgraph(wrap, drugs, pairs){
 // APP STATE
 // ════════════════════════════════
 const API='https://varshasekar-ddi-prediction-api.hf.space';
-let token=localStorage.getItem('ddi_token')||'';
-let username=localStorage.getItem('ddi_username')||'';
-let lastResult=null,authMode='login';
+let lastResult=null;
 let allDrugs=[],matrixSelectors=[],matrixCount=3;
 let currentGraph=null;
 
-// HuggingFace dataset file URLs
 const HF_BASE='https://huggingface.co/datasets/VarshaSekar/Drug_Drug_Prediction/resolve/main';
 const HF_MAPPING_URL=`${HF_BASE}/drug_id_mapping_aux.csv`;
 const HF_NAMES_URL=`${HF_BASE}/drug_names.csv`;
 
 // ════════════════════════════════
-// CSV PARSER (lightweight)
+// CSV PARSER
 // ════════════════════════════════
 function parseCSV(text){
   const lines=text.trim().split('\n');
@@ -1152,7 +1059,11 @@ class DrugSelector{
     const wrap=document.createElement('div');wrap.className='drug-selector-wrap';
     const lbl=document.createElement('span');lbl.className='drug-selector-label';lbl.textContent=this.labelText;
     this.ctrlEl=document.createElement('div');this.ctrlEl.className='drug-control';this.ctrlEl.tabIndex=0;
-    this.ctrlEl.textContent=this.selected?this.selected.id:'— Select a drug —';
+    if(this.selected&&this.selected.name&&this.selected.name!==this.selected.id){
+      this.ctrlEl.innerHTML=`<span style="font-weight:600;color:var(--ink)">${this.selected.name}</span><span style="font-size:.72em;color:var(--ink3);font-weight:400"> (${this.selected.id})</span>`;
+    } else {
+      this.ctrlEl.textContent=this.selected?this.selected.id:'— Select a drug —';
+    }
     this.ctrlEl.style.color=this.selected?'var(--ink)':'var(--ink3)';
     this.arrEl=document.createElement('span');this.arrEl.className='drug-control-arrow';this.arrEl.textContent='▾';
     this.panelEl=document.createElement('div');this.panelEl.className='drug-panel';
@@ -1162,7 +1073,9 @@ class DrugSelector{
     this.listEl=document.createElement('div');this.listEl.className='drug-list';
     this.cntEl=document.createElement('div');this.cntEl.className='drug-count';
     this.panelEl.appendChild(sb);this.panelEl.appendChild(this.listEl);this.panelEl.appendChild(this.cntEl);
-    wrap.appendChild(lbl);wrap.appendChild(this.ctrlEl);wrap.appendChild(this.arrEl);wrap.appendChild(this.panelEl);
+    // Attach panel to body so fixed positioning is never clipped by parent stacking contexts
+    document.body.appendChild(this.panelEl);
+    wrap.appendChild(lbl);wrap.appendChild(this.ctrlEl);wrap.appendChild(this.arrEl);
     c.appendChild(wrap);this.el=wrap;
     this._fill('');
     this.ctrlEl.addEventListener('click',()=>this.toggle());
@@ -1214,19 +1127,53 @@ class DrugSelector{
     }
     this.ctrlEl.style.color='var(--ink)';
     this.ctrlEl.appendChild(this.arrEl);
-
   }
   getValue(){return this.selected?this.selected.id:''}
   toggle(){this.open?this.close():this.openPanel()}
   openPanel(){
     this.open=true;this.panelEl.classList.add('open');this.ctrlEl.classList.add('open');this.arrEl.classList.add('open');
+    // getBoundingClientRect gives viewport coords — perfect for position:fixed
+    const rc=this.ctrlEl.getBoundingClientRect();
+    const panelW=Math.max(rc.width,280);
+    this.panelEl.style.width=panelW+'px';
+    // Align left edge, but don't overflow right edge of viewport
+    let left=rc.left;
+    if(left+panelW>window.innerWidth-8) left=window.innerWidth-panelW-8;
+    this.panelEl.style.left=Math.max(4,left)+'px';
+    // Show below control; flip above if not enough space
+    const spaceBelow=window.innerHeight-rc.bottom-8;
+    if(spaceBelow<220&&rc.top>220){
+      this.panelEl.style.top='';
+      this.panelEl.style.bottom=(window.innerHeight-rc.top+4)+'px';
+      this.panelEl.style.maxHeight=Math.min(280,rc.top-8)+'px';
+    }else{
+      this.panelEl.style.bottom='';
+      this.panelEl.style.top=(rc.bottom+4)+'px';
+      this.panelEl.style.maxHeight=Math.min(280,spaceBelow)+'px';
+    }
     this.searchEl.value='';this._fill('');
     setTimeout(()=>this.searchEl.focus(),60);
     document.addEventListener('click',this._clickout);
   }
   close(){
-    this.open=false;this.panelEl.classList.remove('open');this.ctrlEl.classList.remove('open');this.arrEl.classList.remove('open');
+    this.open=false;
+    this.panelEl.classList.remove('open');
+    this.ctrlEl.classList.remove('open');this.arrEl.classList.remove('open');
     document.removeEventListener('click',this._clickout);
+  }
+  _reposition(){
+    if(!this.open)return;
+    const rc=this.ctrlEl.getBoundingClientRect();
+    const panelW=parseInt(this.panelEl.style.width)||280;
+    let left=rc.left;
+    if(left+panelW>window.innerWidth-8) left=window.innerWidth-panelW-8;
+    this.panelEl.style.left=Math.max(4,left)+'px';
+    const spaceBelow=window.innerHeight-rc.bottom-8;
+    if(spaceBelow<220&&rc.top>220){
+      this.panelEl.style.top='';this.panelEl.style.bottom=(window.innerHeight-rc.top+4)+'px';
+    }else{
+      this.panelEl.style.bottom='';this.panelEl.style.top=(rc.bottom+4)+'px';
+    }
   }
   _onOut(e){if(!this.el.contains(e.target))this.close()}
 }
@@ -1247,10 +1194,7 @@ function _addMatrixSel(i){
 }
 
 // ════════════════════════════════
-// FETCH DRUGS — HuggingFace only
-// 1. drug_id_mapping_aux.csv  → valid set of 9495 DrugBank IDs
-// 2. drug_names.csv           → node_index, id, name, smiles
-// Intersect to get names for the 9495 valid drugs only
+// FETCH DRUGS
 // ════════════════════════════════
 async function fetchAllDrugs(){
   const loadBar=document.getElementById('drug-load-bar');
@@ -1259,32 +1203,23 @@ async function fetchAllDrugs(){
 
   try{
     if(loadMsg) loadMsg.textContent='Fetching drug ID mapping…';
-
-    // Fetch both CSVs in parallel
     const [mappingRes, namesRes] = await Promise.all([
       fetch(HF_MAPPING_URL),
       fetch(HF_NAMES_URL)
     ]);
-
     if(!mappingRes.ok) throw new Error(`drug_id_mapping_aux.csv: HTTP ${mappingRes.status}`);
     if(!namesRes.ok)   throw new Error(`drug_names.csv: HTTP ${namesRes.status}`);
-
     if(loadMsg) loadMsg.textContent='Parsing drug data…';
-
     const [mappingText, namesText] = await Promise.all([
       mappingRes.text(),
       namesRes.text()
     ]);
-
-    // Parse drug_id_mapping_aux.csv  → columns: drugbank_id, node_index
     const mappingRows = parseCSV(mappingText);
     const validIds = new Set();
     mappingRows.forEach(r=>{
       const id=(r['drugbank_id']||r['drugbank id']||r['id']||'').trim();
       if(id) validIds.add(id);
     });
-
-    // Parse drug_names.csv → columns: node_index, id, name, smiles
     const namesRows = parseCSV(namesText);
     const nameMap={};
     namesRows.forEach(r=>{
@@ -1292,22 +1227,12 @@ async function fetchAllDrugs(){
       const nm=(r['name']||'').trim();
       if(id&&nm) nameMap[id]=nm;
     });
-
-    // Build allDrugs: only the valid 9495 IDs, enriched with names
     allDrugs = Array.from(validIds)
       .map(id=>({ id, name: nameMap[id]||null }))
       .sort((a,b)=>a.id.localeCompare(b.id));
-
-    // Hide loading bar
     if(loadBar) loadBar.style.display='none';
-
     if(metaEl) metaEl.textContent=`${allDrugs.length.toLocaleString()} drugs · DrugBank`;
-
-    // Init selectors with loaded data
     initSelectors();
-
-
-
   }catch(e){
     console.error('Drug load error:',e);
     if(loadMsg) loadMsg.textContent=`⚠ ${e.message} — falling back to API`;
@@ -1316,7 +1241,6 @@ async function fetchAllDrugs(){
       loadBar.style.background='var(--amber-pale)';
       loadBar.querySelector('.spinner').style.display='none';
     }
-    // Fallback: try the API
     try{
       const r=await fetch(`${API}/api/drugs?q=&limit=10000`);
       if(r.ok){
@@ -1325,7 +1249,6 @@ async function fetchAllDrugs(){
         if(loadBar) loadBar.style.display='none';
         if(metaEl) metaEl.textContent=`${allDrugs.length.toLocaleString()} drugs · API`;
         initSelectors();
-        autoPredict=true;
       }
     }catch(e2){
       notify('Could not load drug list','err');
@@ -1337,8 +1260,7 @@ async function fetchAllDrugs(){
 // MOBILE NAV
 // ════════════════════════════════
 function toggleMobileNav(){
-  const nl=document.getElementById('nav-links');
-  nl.classList.toggle('mobile-open');
+  document.getElementById('nav-links').classList.toggle('mobile-open');
 }
 
 // ════════════════════════════════
@@ -1350,42 +1272,6 @@ function showPage(name,btn){
   document.getElementById(`page-${name}`).classList.add('active');
   if(btn)btn.classList.add('active');
   document.getElementById('nav-links').classList.remove('mobile-open');
-  if(name==='history')loadHistory();
-}
-
-// ════════════════════════════════
-// AUTH
-// ════════════════════════════════
-function openAuth(mode){
-  authMode=mode;const il=mode==='login';
-  document.getElementById('auth-title').textContent=il?'Sign in':'Create account';
-  document.getElementById('auth-submit-btn').textContent=il?'Sign in':'Create account';
-  document.getElementById('auth-switch-text').textContent=il?'No account? ':'Have an account? ';
-  document.getElementById('auth-switch-link').textContent=il?'Sign up':'Sign in';
-  document.getElementById('auth-err').textContent='';
-  document.getElementById('auth-modal').classList.add('show');
-}
-function closeAuth(){document.getElementById('auth-modal').classList.remove('show')}
-function toggleAuthMode(){openAuth(authMode==='login'?'register':'login')}
-async function submitAuth(){
-  const user=document.getElementById('auth-user').value.trim(),pass=document.getElementById('auth-pass').value;
-  const err=document.getElementById('auth-err');
-  if(!user||!pass){err.textContent='Please fill in both fields';return}
-  try{
-    const res=await fetch(API+(authMode==='login'?'/api/auth/login':'/api/auth/register'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user,password:pass})});
-    const data=await res.json();
-    if(!res.ok){err.textContent=data.detail||'Error';return}
-    token=data.token;username=data.username;
-    localStorage.setItem('ddi_token',token);localStorage.setItem('ddi_username',username);
-    updateAuthUI();closeAuth();notify(`Welcome, ${username}!`,'ok');
-  }catch(e){err.textContent='Connection error'}
-}
-function logout(){token=username='';localStorage.removeItem('ddi_token');localStorage.removeItem('ddi_username');updateAuthUI();notify('Signed out','ok')}
-function updateAuthUI(){
-  const el=document.getElementById('nav-auth');
-  el.innerHTML=token&&username
-    ?`<span style="font-family:var(--mono);font-size:.62rem;color:var(--ink3);padding:0 .4rem">◉ ${username}</span><button class="btn btn-ghost btn-sm" onclick="logout()">Out</button>`
-    :`<button class="btn btn-ghost btn-sm" onclick="openAuth('login')">Login</button><button class="btn btn-primary btn-sm" onclick="openAuth('register')">Sign up</button>`;
 }
 
 // ════════════════════════════════
@@ -1402,7 +1288,7 @@ async function runPredict(){
   overlay.classList.add('show');steps.innerHTML='';fill.style.width='0%';msg.textContent='Connecting…';
   const btn=document.getElementById('predict-btn');btn.disabled=true;
   try{
-    const hdrs={'Content-Type':'application/json'};if(token)hdrs['Authorization']=`Bearer ${token}`;
+    const hdrs={'Content-Type':'application/json'};
     const res=await fetch(`${API}/api/predict/stream`,{method:'POST',headers:hdrs,body:JSON.stringify({drug_a:da,drug_b:db,top_k:topk})});
     const reader=res.body.getReader();const dec=new TextDecoder();
     let buf='',result=null;
@@ -1428,10 +1314,12 @@ function renderResult(r){
   const conf=(r.confidence*100).toFixed(2),isInt=r.is_interaction;
   const bcls=isInt?(r.confidence>.75?'badge-danger':'badge-warn'):'badge-safe';
   const btxt=isInt?(r.confidence>.75?'⚠ High Risk':'◎ Possible'):'✓ No Interaction';
+  const nameA=getDrugLabel(r.drug_a_id)||r.drug_a_name||r.drug_a_id;
+  const nameB=getDrugLabel(r.drug_b_id)||r.drug_b_name||r.drug_b_id;
   document.getElementById('predict-metrics').innerHTML=`
     <div class="metric ${isInt?'danger':'safe'}"><div class="metric-label">Status</div><div class="metric-value">${isInt?'Interaction':'Safe ✓'}</div></div>
-    <div class="metric"><div class="metric-label">Drug A</div><div class="metric-value" style="font-size:1rem">${r.drug_a_name||r.drug_a_id}</div><div class="metric-sub">${r.drug_a_id}</div></div>
-    <div class="metric"><div class="metric-label">Drug B</div><div class="metric-value" style="font-size:1rem">${r.drug_b_name||r.drug_b_id}</div><div class="metric-sub">${r.drug_b_id}</div></div>
+    <div class="metric"><div class="metric-label">Drug A</div><div class="metric-value" style="font-size:.9rem;line-height:1.2">${nameA}</div><div class="metric-sub">${r.drug_a_id}</div></div>
+    <div class="metric"><div class="metric-label">Drug B</div><div class="metric-value" style="font-size:.9rem;line-height:1.2">${nameB}</div><div class="metric-sub">${r.drug_b_id}</div></div>
     <div class="metric"><div class="metric-label">Confidence</div><div class="metric-value">${conf}%</div></div>
     <div class="metric"><div class="metric-label">Mode</div><div class="metric-value" style="font-size:.82rem">${r.embed_mode}</div></div>`;
   document.getElementById('result-main-card').className=`card result-card ${isInt?'danger-card':'safe-card'}`;
@@ -1498,7 +1386,7 @@ async function runBatch(){
   if(!batchData?.length)return;
   const r=document.getElementById('batch-result');r.style.display='block';
   r.innerHTML='<div class="card" style="text-align:center;padding:2rem"><div class="spinner"></div><div style="margin-top:1rem;font-family:var(--mono);font-size:.7rem;color:var(--ink3)">Processing…</div></div>';
-  const hdrs={'Content-Type':'application/json'};if(token)hdrs['Authorization']=`Bearer ${token}`;
+  const hdrs={'Content-Type':'application/json'};
   try{
     const res=await fetch(`${API}/api/predict/batch`,{method:'POST',headers:hdrs,body:JSON.stringify({pairs:batchData,top_k:1})});
     const data=await res.json();renderBatch(data.results);
@@ -1535,7 +1423,7 @@ async function runMatrix(){
   if(drugs.length<2){notify('Select at least 2 drugs','err');return}
   const r=document.getElementById('matrix-result');r.style.display='block';
   r.innerHTML='<div class="card" style="text-align:center;padding:2rem"><div class="spinner"></div><div style="margin-top:1rem;font-family:var(--mono);font-size:.7rem;color:var(--ink3)">Computing pairwise interactions…</div></div>';
-  const hdrs={'Content-Type':'application/json'};if(token)hdrs['Authorization']=`Bearer ${token}`;
+  const hdrs={'Content-Type':'application/json'};
   try{
     const res=await fetch(`${API}/api/predict/matrix`,{method:'POST',headers:hdrs,body:JSON.stringify({drugs})});
     const data=await res.json();renderMatrix(data);
@@ -1546,10 +1434,13 @@ function renderMatrix(data){
   const ni=pairs.filter(p=>p.is_interaction).length;
   const mat={};pairs.forEach(p=>{mat[`${p.drug_a_id}|${p.drug_b_id}`]=p;mat[`${p.drug_b_id}|${p.drug_a_id}`]=p});
   const n=drugs.length,cs=Math.min(88,Math.floor(440/n));
+  // heatmap uses short name + ID
+  const drugLabel=id=>{const nm=getDrugLabel(id);return nm&&nm!==id?`${nm.slice(0,10)} (${id})`:id};
+  const drugShort=id=>{const nm=getDrugLabel(id);return nm&&nm!==id?nm.slice(0,8):id.slice(0,9)};
   let grid=`<div style="overflow-x:auto"><table style="border-collapse:separate;border-spacing:3px;margin:0 auto">`;
-  grid+='<tr><td style="width:70px"></td>'+drugs.map(d=>`<td style="padding:0 2px;text-align:center;font-family:var(--mono);font-size:.56rem;color:var(--ink3)">${d.slice(0,9)}</td>`).join('')+'</tr>';
+  grid+='<tr><td style="width:90px"></td>'+drugs.map(d=>`<td style="padding:0 2px;text-align:center;font-family:var(--mono);font-size:.52rem;color:var(--ink3)" title="${drugLabel(d)}">${drugShort(d)}</td>`).join('')+'</tr>';
   drugs.forEach(da=>{
-    grid+=`<tr><td style="padding:2px 6px 2px 0;font-family:var(--mono);font-size:.56rem;color:var(--ink3);text-align:right;white-space:nowrap">${da.slice(0,9)}</td>`;
+    grid+=`<tr><td style="padding:2px 6px 2px 0;font-family:var(--mono);font-size:.52rem;color:var(--ink3);text-align:right;white-space:nowrap" title="${drugLabel(da)}">${drugShort(da)}</td>`;
     drugs.forEach(db=>{
       if(da===db){grid+=`<td style="width:${cs}px;height:${cs}px;background:var(--bg3);border-radius:5px"></td>`}
       else{
@@ -1557,11 +1448,19 @@ function renderMatrix(data){
         const bg=p?.is_interaction?`rgba(197,24,59,${.12+pct*.008})`:`rgba(10,124,113,${.08+pct*.005})`;
         const tc=p?.is_interaction?'var(--rose)':'var(--teal)';
         const border=p?.is_interaction?`1px solid rgba(197,24,59,.3)`:`1px solid rgba(10,124,113,.2)`;
-        grid+=`<td class="heatmap-cell" title="${p?(p.top_prediction+' ('+pct.toFixed(1)+'%)'):'—'}" style="width:${cs}px;height:${cs}px;background:${bg};border-radius:5px;text-align:center;vertical-align:middle;font-family:var(--mono);font-size:.56rem;color:${tc};border:${border}">${p?pct.toFixed(0)+'%':'—'}</td>`;
+        grid+=`<td class="heatmap-cell" title="${drugShort(da)} × ${drugShort(db)}: ${p?(p.top_prediction+' '+pct.toFixed(1)+'%'):'—'}" style="width:${cs}px;height:${cs}px;background:${bg};border-radius:5px;text-align:center;vertical-align:middle;font-family:var(--mono);font-size:.56rem;color:${tc};border:${border}">${p?pct.toFixed(0)+'%':'—'}</td>`;
       }
     });grid+='</tr>';
   });grid+='</table></div>';
   const sorted=[...pairs].sort((a,b)=>(b.is_interaction-a.is_interaction)||(b.confidence-a.confidence));
+
+  // Build pairwise selector options
+  const pairOptions=pairs.map((p,i)=>{
+    const na=getDrugLabel(p.drug_a_id)||p.drug_a_id;
+    const nb=getDrugLabel(p.drug_b_id)||p.drug_b_id;
+    return `<option value="${i}">${na} (${p.drug_a_id}) × ${nb} (${p.drug_b_id})</option>`;
+  }).join('');
+
   document.getElementById('matrix-result').innerHTML=`
     <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
       <div class="metric"><div class="metric-label">Drugs</div><div class="metric-value">${drugs.length}</div></div>
@@ -1571,40 +1470,95 @@ function renderMatrix(data){
     </div>
     <div class="card">
       <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab(this,'tab-subgraph')">Drug Subgraph</button>
+        <button class="tab-btn active" onclick="switchTab(this,'tab-subgraph')">Full Subgraph</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-pairwise')">Pairwise Graph</button>
         <button class="tab-btn" onclick="switchTab(this,'tab-heatmap')">Heatmap</button>
         <button class="tab-btn" onclick="switchTab(this,'tab-table')">Ranked Table</button>
       </div>
+
       <div class="tab-content active" id="tab-subgraph">
         <div style="font-family:var(--mono);font-size:.6rem;color:var(--ink3);margin-bottom:.55rem;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center">
-          <span>Drag nodes · Hover for details</span>
-          <span style="display:flex;align-items:center;gap:.35rem"><span style="width:18px;height:2px;background:var(--rose);border-radius:2px;display:inline-block"></span>Interaction edge</span>
+          <span>Hover nodes for details · Drag to rearrange</span>
+          <span style="display:flex;align-items:center;gap:.35rem"><span style="width:18px;height:2px;background:var(--rose);border-radius:2px;display:inline-block"></span>Interaction</span>
           <span style="display:flex;align-items:center;gap:.35rem"><span style="width:18px;height:0;border-top:2px dashed var(--teal);display:inline-block"></span>Safe</span>
         </div>
         <div class="graph-wrap" id="matrix-subgraph-wrap" style="height:500px"></div>
         <div class="graph-legend" id="matrix-subgraph-legend" style="margin-top:.75rem"></div>
       </div>
+
+      <div class="tab-content" id="tab-pairwise">
+        <div id="pairwise-pair-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.65rem;margin-bottom:1rem"></div>
+        <div class="graph-wrap" id="pairwise-graph-wrap" style="height:460px">
+          <div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:.75rem;opacity:.4">
+            <svg width="44" height="44" viewBox="0 0 52 52" fill="none"><circle cx="12" cy="12" r="6" stroke="#0A7C71" stroke-width="2"/><circle cx="40" cy="12" r="6" stroke="#0A7C71" stroke-width="2"/><line x1="17" y1="14" x2="35" y2="14" stroke="#0A7C71" stroke-width="1.5"/></svg>
+            <span style="font-family:var(--mono);font-size:.72rem;color:var(--ink3)">Select a pair above to view its subgraph</span>
+          </div>
+        </div>
+        <div class="graph-legend" id="pairwise-graph-legend" style="margin-top:.75rem"></div>
+      </div>
+
       <div class="tab-content" id="tab-heatmap">
         ${grid}
         <div style="display:flex;gap:1.5rem;margin-top:.85rem;font-family:var(--mono);font-size:.6rem;color:var(--ink3);flex-wrap:wrap">
           <span style="display:flex;align-items:center;gap:.4rem"><span style="width:14px;height:14px;background:rgba(197,24,59,.4);border-radius:3px;border:1px solid var(--rose-bd);display:inline-block"></span>Interaction</span>
           <span style="display:flex;align-items:center;gap:.4rem"><span style="width:14px;height:14px;background:rgba(10,124,113,.25);border-radius:3px;border:1px solid var(--teal-bd);display:inline-block"></span>No Interaction</span>
+          <span style="color:var(--ink3);font-style:italic">Hover cells for details</span>
         </div>
       </div>
+
       <div class="tab-content" id="tab-table">
         <div style="overflow-x:auto">
           <table class="data-table"><thead><tr><th>#</th><th>Drug A</th><th>Drug B</th><th>Prediction</th><th>Confidence</th><th>Status</th></tr></thead>
-          <tbody>${sorted.map((p,i)=>`<tr>
-            <td style="color:var(--ink3);font-family:var(--mono)">${i+1}</td>
-            <td>${p.drug_a_name||p.drug_a_id||p.drug_a}</td>
-            <td>${p.drug_b_name||p.drug_b_id||p.drug_b}</td>
-            <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.top_prediction||p.message||'-'}</td>
-            <td style="font-family:var(--mono);color:var(--teal)">${p.confidence?(p.confidence*100).toFixed(1)+'%':'-'}</td>
-            <td>${p.is_interaction?'<span class="badge badge-danger" style="font-size:.55rem;padding:.1rem .5rem;margin:0">INTERACTION</span>':'<span class="badge badge-safe" style="font-size:.55rem;padding:.1rem .5rem;margin:0">SAFE</span>'}</td>
-          </tr>`).join('')}</tbody></table></div>
+          <tbody>${sorted.map((p,i)=>{
+            const na=getDrugLabel(p.drug_a_id)||p.drug_a_name||p.drug_a_id||p.drug_a;
+            const nb=getDrugLabel(p.drug_b_id)||p.drug_b_name||p.drug_b_id||p.drug_b;
+            return `<tr>
+              <td style="color:var(--ink3);font-family:var(--mono)">${i+1}</td>
+              <td><div style="font-weight:600">${na}</div><div style="font-family:var(--mono);font-size:.58rem;color:var(--ink3)">${p.drug_a_id||''}</div></td>
+              <td><div style="font-weight:600">${nb}</div><div style="font-family:var(--mono);font-size:.58rem;color:var(--ink3)">${p.drug_b_id||''}</div></td>
+              <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.top_prediction||p.message||'-'}</td>
+              <td style="font-family:var(--mono);color:var(--teal)">${p.confidence?(p.confidence*100).toFixed(1)+'%':'-'}</td>
+              <td>${p.is_interaction?'<span class="badge badge-danger" style="font-size:.55rem;padding:.1rem .5rem;margin:0">INTERACTION</span>':'<span class="badge badge-safe" style="font-size:.55rem;padding:.1rem .5rem;margin:0">SAFE</span>'}</td>
+            </tr>`;
+          }).join('')}</tbody></table></div>
       </div>
     </div>`;
-  setTimeout(()=>{const wrap=document.getElementById('matrix-subgraph-wrap');if(wrap&&drugs.length>=2)buildMatrixKnowledgeSubgraph(wrap,drugs,pairs)},60);
+
+  // store pairs for pairwise graph
+  window._matrixPairs=pairs;
+  // Render pair picker cards
+  setTimeout(()=>{
+    const cardWrap=document.getElementById('pairwise-pair-cards');
+    if(cardWrap){
+      cardWrap.innerHTML=pairs.map((p,i)=>{
+        const na=getDrugLabel(p.drug_a_id)||p.drug_a_id;
+        const nb=getDrugLabel(p.drug_b_id)||p.drug_b_id;
+        const isInt=p.is_interaction;
+        const conf=p.confidence?(p.confidence*100).toFixed(0):'—';
+        const dot=isInt?'#C5183B':'#0A7C71';
+        const bg=isInt?'rgba(197,24,59,0.04)':'rgba(10,124,113,0.04)';
+        const bd=isInt?'rgba(197,24,59,0.18)':'rgba(10,124,113,0.18)';
+        return `<button onclick="loadPairwiseGraphByIdx(${i})" id="pair-card-${i}"
+          style="text-align:left;background:${bg};border:1.5px solid ${bd};border-radius:12px;
+          padding:.7rem .9rem;cursor:pointer;transition:all 0.15s;font-family:var(--sans);width:100%">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">
+            <span style="width:7px;height:7px;border-radius:50%;background:${dot};flex-shrink:0;display:inline-block"></span>
+            <span style="font-size:.68rem;font-weight:700;color:${dot};font-family:var(--mono);letter-spacing:.06em">
+              ${isInt?'INTERACTION':'SAFE'} · ${conf}%
+            </span>
+          </div>
+          <div style="font-size:.8rem;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:.15rem">
+            ${na.length>18?na.slice(0,17)+'…':na}
+            <span style="color:var(--ink3);font-weight:400"> × </span>
+            ${nb.length>18?nb.slice(0,17)+'…':nb}
+          </div>
+          <div style="font-size:.58rem;font-family:var(--mono);color:var(--ink3)">${p.drug_a_id} × ${p.drug_b_id}</div>
+        </button>`;
+      }).join('');
+    }
+    const wrap=document.getElementById('matrix-subgraph-wrap');
+    if(wrap&&drugs.length>=2)buildMatrixKnowledgeSubgraph(wrap,drugs,pairs);
+  },60);
 }
 function switchTab(btn,targetId){
   const parent=btn.closest('.card');
@@ -1613,6 +1567,53 @@ function switchTab(btn,targetId){
   btn.classList.add('active');
   const t=document.getElementById(targetId);if(t)t.classList.add('active');
 }
+
+// ════════════════════════════════
+// PAIRWISE SUBGRAPH LOADER
+// ════════════════════════════════
+async function loadPairwiseGraphByIdx(idx){
+  const pairs=window._matrixPairs;
+  if(!pairs) return;
+  const p=pairs[idx];
+  if(!p) return;
+  // Highlight selected card
+  document.querySelectorAll('[id^="pair-card-"]').forEach(c=>{
+    c.style.boxShadow='';c.style.transform='';c.style.borderWidth='1.5px';
+  });
+  const card=document.getElementById(`pair-card-${idx}`);
+  if(card){card.style.boxShadow='0 0 0 3px rgba(10,124,113,0.25)';card.style.transform='translateY(-1px)';card.style.borderWidth='2px';}
+  const wrap=document.getElementById('pairwise-graph-wrap');
+  const legend=document.getElementById('pairwise-graph-legend');
+  wrap.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:.75rem"><div class="spinner"></div><span style="font-family:var(--mono);font-size:.72rem;color:var(--ink3)">Loading subgraph…</span></div>';
+  if(legend) legend.innerHTML='';
+  try{
+    const res=await fetch(`${API}/api/subgraph?drug_a=${p.drug_a_id}&drug_b=${p.drug_b_id}&max_nbr=12`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    const enriched=enrichNodes(data.nodes||[]);
+    const nodeColor={
+      drug_a:'#0A7C71',drug_b:'#4F46E5',shared:'#F5A623',
+      protein:'#F59E0B',atc:'#10B981',disease:'#EF4444',effect:'#94A3B8',default:'#94A3B8'
+    };
+    new ForceGraph(wrap,enriched,data.edges||[],{nodeColor,bgColor:'#F7F5F0'});
+    if(legend){
+      const na=getDrugLabel(p.drug_a_id)||p.drug_a_id;
+      const nb=getDrugLabel(p.drug_b_id)||p.drug_b_id;
+      legend.innerHTML=`
+        <span class="legend-item"><span class="legend-dot" style="background:#0A7C71"></span>${na} (${p.drug_a_id})</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#4F46E5"></span>${nb} (${p.drug_b_id})</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#F5A623"></span>Shared</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#F59E0B"></span>Protein</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#10B981"></span>ATC</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#EF4444"></span>Disease</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#94A3B8"></span>Effect</span>`;
+    }
+  }catch(e){
+    wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--mono);font-size:.72rem;color:var(--ink3)">⚠ ${e.message}</div>`;
+  }
+}
+// Legacy alias
+function loadPairwiseGraph(){loadPairwiseGraphByIdx(0);}
 
 // ════════════════════════════════
 // EXPLORE
@@ -1636,38 +1637,6 @@ async function loadProfile(){
       </div>
       <div class="clinical-note" style="margin-top:1rem">📋 This drug has <strong>${d.side_effects}</strong> documented side effects in the knowledge graph.</div>`;
   }catch(e){notify('Error: '+e.message,'err')}
-}
-
-// ════════════════════════════════
-// HISTORY
-// ════════════════════════════════
-async function loadHistory(){
-  if(!token){document.getElementById('history-auth-prompt').style.display='block';document.getElementById('history-list').style.display='none';return}
-  document.getElementById('history-auth-prompt').style.display='none';document.getElementById('history-list').style.display='block';
-  try{
-    const res=await fetch(`${API}/api/history`,{headers:{Authorization:`Bearer ${token}`}});
-    const data=await res.json();
-    document.getElementById('history-count').textContent=`${data.length} predictions`;
-    document.getElementById('history-items').innerHTML=data.length
-      ?data.map(h=>{
-          const conf=(h.confidence*100).toFixed(1);
-          const b=h.is_interaction?'<span class="badge badge-danger" style="font-size:.55rem;padding:.1rem .5rem;margin:0">INTERACTION</span>':'<span class="badge badge-safe" style="font-size:.55rem;padding:.1rem .5rem;margin:0">SAFE</span>';
-          return `<div style="background:#fff;border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;margin-bottom:.65rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;box-shadow:var(--shadow);flex-wrap:wrap">
-            <div style="min-width:0;flex:1"><div style="font-family:var(--mono);font-size:.8rem;color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.drug_a_name||h.drug_a} × ${h.drug_b_name||h.drug_b}</div><div style="font-size:.75rem;color:var(--ink3);margin-top:.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.prediction}</div></div>
-            ${b}
-            <div style="text-align:right;flex-shrink:0"><div style="font-family:var(--mono);font-size:.72rem;color:var(--teal);font-weight:600">${conf}%</div><div style="font-family:var(--mono);font-size:.6rem;color:var(--ink3)">${new Date(h.created).toLocaleDateString()}</div></div>
-          </div>`;
-        }).join('')
-      :'<div style="text-align:center;padding:3rem;font-family:var(--mono);font-size:.72rem;color:var(--ink3)">No predictions yet</div>';
-  }catch(e){console.error(e)}
-}
-async function clearHistory(){if(!confirm('Clear all?'))return;await fetch(`${API}/api/history`,{method:'DELETE',headers:{Authorization:`Bearer ${token}`}});loadHistory()}
-function exportHistoryCSV(){
-  fetch(`${API}/api/history`,{headers:{Authorization:`Bearer ${token}`}}).then(r=>r.json()).then(data=>{
-    const hdr='Drug A,Drug B,Prediction,Confidence,Interaction,Date\n';
-    const rows=data.map(h=>`${h.drug_a},${h.drug_b},"${h.prediction}",${(h.confidence*100).toFixed(1)}%,${h.is_interaction?'Yes':'No'},${h.created}`).join('\n');
-    dlText('ddi_history.csv',hdr+rows,'text/csv');
-  });
 }
 
 // ════════════════════════════════
@@ -1698,400 +1667,6 @@ function exportJSON(){if(!lastResult)return;dlText('ddi_result.json',JSON.string
 function dlText(name,text,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:mime}));a.download=name;a.click()}
 
 // ════════════════════════════════
-// MEDICINE / TABLET LOOKUP
-// Uses RxNorm → active ingredient → DrugBank match
-// ════════════════════════════════
-const RXNORM_BASE = 'https://rxnav.nlm.nih.gov/REST';
-let medResolvedA = null; // { tabletName, rxName, ingredient, drugbankId, drugbankName, candidates }
-let medResolvedB = null;
-let lastMedResult = null;
-
-/** Step 1 — query RxNorm approximate-term search */
-async function rxNormSearch(query){
-  const url = `${RXNORM_BASE}/approximateTerm.json?term=${encodeURIComponent(query)}&maxEntries=8&option=1`;
-  const res = await fetch(url);
-  if(!res.ok) throw new Error('RxNorm unreachable');
-  const data = await res.json();
-  return data.approximateGroup?.candidate || [];
-}
-
-/** Step 2 — for a given rxcui get ingredient (IN) names */
-async function rxNormIngredients(rxcui){
-  const url = `${RXNORM_BASE}/rxcui/${rxcui}/related.json?tty=IN`;
-  const res = await fetch(url);
-  if(!res.ok) return [];
-  const data = await res.json();
-  const groups = data.relatedGroup?.conceptGroup || [];
-  const inGroup = groups.find(g => g.tty === 'IN');
-  return inGroup?.conceptProperties || [];
-}
-
-/** Step 3 — fuzzy-match an ingredient name against our allDrugs list */
-function matchToDrugBank(ingredientName){
-  const q = ingredientName.toLowerCase().trim();
-  // 1) exact name match
-  let hit = allDrugs.find(d => d.name && d.name.toLowerCase() === q);
-  if(hit) return hit;
-  // 2) drugbank ID match
-  hit = allDrugs.find(d => d.id.toLowerCase() === q);
-  if(hit) return hit;
-  // 3) starts-with match
-  hit = allDrugs.find(d => d.name && d.name.toLowerCase().startsWith(q));
-  if(hit) return hit;
-  // 4) contains match (q inside name)
-  hit = allDrugs.find(d => d.name && d.name.toLowerCase().includes(q));
-  if(hit) return hit;
-  // 5) name contains q (q is longer, name is subset)
-  hit = allDrugs.find(d => d.name && q.includes(d.name.toLowerCase()) && d.name.length > 4);
-  if(hit) return hit;
-  return null;
-}
-
-/** Render the result card for one side (a or b) */
-function renderMedResult(side, resolved){
-  const el = document.getElementById(`med-result-${side}`);
-  if(!resolved){
-    el.innerHTML = '';
-    return;
-  }
-
-  if(resolved.status === 'loading'){
-    el.innerHTML = `<div style="display:flex;align-items:center;gap:.6rem;padding:.5rem 0">
-      <div class="spinner" style="width:16px;height:16px;border-width:2px;margin:0;flex-shrink:0"></div>
-      <span style="font-family:var(--mono);font-size:.65rem;color:var(--ink3)">${resolved.msg||'Searching…'}</span>
-    </div>`;
-    return;
-  }
-
-  if(resolved.status === 'notfound'){
-    el.innerHTML = `<div style="background:var(--amber-pale);border:1px solid var(--amber-bd);border-radius:10px;padding:.7rem .9rem">
-      <div style="font-family:var(--mono);font-size:.6rem;font-weight:600;color:var(--amber);margin-bottom:.25rem">⚠ Not Found in DrugBank</div>
-      <div style="font-size:.76rem;color:var(--amber)">${resolved.msg}</div>
-      <div style="font-size:.7rem;color:var(--ink3);margin-top:.35rem;font-family:var(--mono)">Try a generic name (e.g. "acetaminophen" instead of "Tylenol")</div>
-    </div>`;
-    return;
-  }
-
-  if(resolved.status === 'ambiguous'){
-    // Show candidate list to pick from
-    el.innerHTML = `<div style="background:rgba(79,70,229,0.05);border:1px solid rgba(79,70,229,0.2);border-radius:10px;padding:.7rem .9rem">
-      <div style="font-family:var(--mono);font-size:.6rem;font-weight:600;color:var(--indigo);margin-bottom:.5rem">Multiple active ingredients found — pick one:</div>
-      ${resolved.candidates.map((c,i)=>`
-        <button onclick="selectMedCandidate('${side}',${i})"
-          style="display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;background:${c.selected?'rgba(10,124,113,0.1)':'#fff'};
-          border:1.5px solid ${c.selected?'var(--teal-bd)':'var(--border2)'};border-radius:8px;
-          padding:.5rem .75rem;margin-bottom:.35rem;cursor:pointer;transition:all .15s">
-          <span style="width:7px;height:7px;border-radius:50%;background:${c.selected?'var(--teal)':'var(--ink4)'};flex-shrink:0;display:inline-block"></span>
-          <div>
-            <div style="font-size:.8rem;font-weight:600;color:var(--ink);font-family:var(--sans)">${c.drugbankName}</div>
-            <div style="font-family:var(--mono);font-size:.58rem;color:var(--ink3)">${c.drugbankId} · from: ${c.ingredientName}</div>
-          </div>
-        </button>`).join('')}
-    </div>`;
-    return;
-  }
-
-  if(resolved.status === 'ok'){
-    const card = document.getElementById(`med-card-${side}`);
-    if(card){
-      card.style.borderColor = 'var(--teal-bd)';
-      card.style.background = 'rgba(209,250,246,0.18)';
-    }
-    el.innerHTML = `<div style="background:rgba(10,124,113,0.06);border:1px solid var(--teal-bd);border-radius:10px;padding:.7rem .9rem">
-      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
-        <span style="font-size:1rem">✅</span>
-        <span style="font-family:var(--mono);font-size:.58rem;font-weight:600;color:var(--teal);letter-spacing:.1em;text-transform:uppercase">Matched to DrugBank</span>
-      </div>
-      <div style="font-size:.9rem;font-weight:700;color:var(--ink);font-family:var(--sans)">${resolved.drugbankName}</div>
-      <div style="font-family:var(--mono);font-size:.6rem;color:var(--ink3);margin-top:.12rem">${resolved.drugbankId}</div>
-      <div style="margin-top:.45rem;padding-top:.45rem;border-top:1px solid var(--border);font-family:var(--mono);font-size:.58rem;color:var(--ink3)">
-        RxNorm: <span style="color:var(--ink2)">${resolved.rxName}</span>
-        ${resolved.ingredientName && resolved.ingredientName !== resolved.rxName ? `· Active: <span style="color:var(--ink2)">${resolved.ingredientName}</span>` : ''}
-      </div>
-      <button onclick="clearMedSide('${side}')" style="margin-top:.5rem;font-family:var(--mono);font-size:.56rem;color:var(--rose);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline">Clear</button>
-    </div>`;
-    updateMedSummary();
-    return;
-  }
-
-  if(resolved.status === 'error'){
-    el.innerHTML = `<div style="background:var(--rose-pale);border:1px solid var(--rose-bd);border-radius:10px;padding:.7rem .9rem">
-      <div style="font-family:var(--mono);font-size:.6rem;font-weight:600;color:var(--rose);margin-bottom:.2rem">⚠ Error</div>
-      <div style="font-size:.76rem;color:var(--rose)">${resolved.msg}</div>
-    </div>`;
-  }
-}
-
-function clearMedSide(side){
-  if(side==='a') medResolvedA=null; else medResolvedB=null;
-  const card = document.getElementById(`med-card-${side}`);
-  if(card){ card.style.borderColor=''; card.style.background=''; }
-  document.getElementById(`med-result-${side}`).innerHTML='';
-  document.getElementById(`med-input-${side}`).value='';
-  updateMedSummary();
-}
-
-function selectMedCandidate(side, idx){
-  const resolved = side==='a' ? medResolvedA : medResolvedB;
-  if(!resolved || !resolved.candidates) return;
-  resolved.candidates.forEach((c,i) => c.selected = i===idx);
-  const chosen = resolved.candidates[idx];
-  const final = {
-    status:'ok', rxName:resolved.rxName, ingredientName:chosen.ingredientName,
-    drugbankId:chosen.drugbankId, drugbankName:chosen.drugbankName, tabletName:resolved.tabletName
-  };
-  if(side==='a') medResolvedA=final; else medResolvedB=final;
-  renderMedResult(side, final);
-}
-
-function updateMedSummary(){
-  const box = document.getElementById('med-matched-summary');
-  const predResult = document.getElementById('med-predict-result');
-  if(medResolvedA?.status==='ok' && medResolvedB?.status==='ok'){
-    box.style.display='block';
-    document.getElementById('med-summary-a').innerHTML =
-      `<span style="color:var(--teal)">${medResolvedA.drugbankName}</span>
-       <span style="font-family:var(--mono);font-size:.62rem;color:var(--ink3);font-weight:400"> (${medResolvedA.drugbankId})</span>`;
-    document.getElementById('med-summary-b').innerHTML =
-      `<span style="color:var(--indigo)">${medResolvedB.drugbankName}</span>
-       <span style="font-family:var(--mono);font-size:.62rem;color:var(--ink3);font-weight:400"> (${medResolvedB.drugbankId})</span>`;
-  } else {
-    box.style.display='none';
-    if(predResult) predResult.style.display='none';
-  }
-}
-
-async function lookupMedicine(side){
-  const input = document.getElementById(`med-input-${side}`);
-  const query = input.value.trim();
-  if(!query){ notify('Enter a medicine or tablet name','err'); return; }
-
-  const btn = document.getElementById(`med-btn-${side}`);
-  btn.disabled=true;
-
-  // Reset card border
-  const card = document.getElementById(`med-card-${side}`);
-  if(card){ card.style.borderColor=''; card.style.background=''; }
-  document.getElementById('med-predict-result').style.display='none';
-
-  // Show loading
-  const loading = {status:'loading', msg:`Searching RxNorm for "${query}"…`};
-  if(side==='a') medResolvedA=null; else medResolvedB=null;
-  renderMedResult(side, loading);
-
-  try{
-    // Step 1: RxNorm search
-    const candidates = await rxNormSearch(query);
-    if(!candidates.length){
-      const r={status:'notfound', msg:`"${query}" not found in RxNorm. Try a different spelling or the generic name.`};
-      if(side==='a') medResolvedA=r; else medResolvedB=r;
-      renderMedResult(side, r);
-      btn.disabled=false; return;
-    }
-
-    const rxcui = candidates[0].rxcui;
-    const rxName = candidates[0].name;
-
-    renderMedResult(side, {status:'loading', msg:`Found "${rxName}" in RxNorm. Fetching active ingredients…`});
-
-    // Step 2: Get active ingredients
-    const ingredients = await rxNormIngredients(rxcui);
-
-    // Also try to get ingredients from BN (brand name) resolve
-    let allIngredientNames = ingredients.map(i=>i.name);
-
-    // Fallback: use the candidate name itself as ingredient if none found
-    if(!allIngredientNames.length) allIngredientNames = [rxName];
-
-    renderMedResult(side, {status:'loading', msg:`Matching active ingredients to DrugBank…`});
-
-    // Step 3: Match each ingredient to DrugBank
-    const matches = [];
-    for(const ingName of allIngredientNames){
-      const db = matchToDrugBank(ingName);
-      if(db) matches.push({ingredientName:ingName, drugbankId:db.id, drugbankName:db.name||db.id});
-    }
-
-    // Also try matching the RxNorm name directly if no ingredient match
-    if(!matches.length){
-      const db = matchToDrugBank(rxName);
-      if(db) matches.push({ingredientName:rxName, drugbankId:db.id, drugbankName:db.name||db.id});
-    }
-
-    if(!matches.length){
-      const r = {
-        status:'notfound',
-        msg:`RxNorm found "${rxName}" but its active ingredients (${allIngredientNames.join(', ')}) are not in our DrugBank dataset of 9,495 drugs.`
-      };
-      if(side==='a') medResolvedA=r; else medResolvedB=r;
-      renderMedResult(side, r);
-      btn.disabled=false; return;
-    }
-
-    if(matches.length===1){
-      const r = {
-        status:'ok', rxName, ingredientName:matches[0].ingredientName,
-        drugbankId:matches[0].drugbankId, drugbankName:matches[0].drugbankName,
-        tabletName:query
-      };
-      if(side==='a') medResolvedA=r; else medResolvedB=r;
-      renderMedResult(side, r);
-    } else {
-      // Multiple matches — let user pick
-      const r = {
-        status:'ambiguous', rxName, tabletName:query,
-        candidates: matches.map((m,i)=>({...m, selected:i===0}))
-      };
-      if(side==='a') medResolvedA=r; else medResolvedB=r;
-      renderMedResult(side, r);
-    }
-
-  }catch(err){
-    const r={status:'error', msg:err.message};
-    if(side==='a') medResolvedA=r; else medResolvedB=r;
-    renderMedResult(side, r);
-  }
-  btn.disabled=false;
-}
-
-async function runMedicinePredict(){
-  if(!medResolvedA?.drugbankId || !medResolvedB?.drugbankId){
-    notify('Both medicines must be resolved first','err');
-    return;
-  }
-  const da = medResolvedA.drugbankId, db = medResolvedB.drugbankId;
-  const topk = 7;
-  const btn = document.getElementById('med-predict-btn');
-  btn.disabled=true;
-  const overlay = document.getElementById('stream-overlay');
-  const steps = document.getElementById('stream-steps');
-  const fill = document.getElementById('stream-fill');
-  const msg = document.getElementById('stream-msg');
-  overlay.classList.add('show');
-  steps.innerHTML='';fill.style.width='0%';msg.textContent='Connecting…';
-  try{
-    const res=await fetch(`${API}/api/predict/stream`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({drug_a:da,drug_b:db,top_k:topk})
-    });
-    const reader=res.body.getReader();const dec=new TextDecoder();
-    let buf='',result=null;
-    while(true){
-      const{done,value}=await reader.read();if(done)break;
-      buf+=dec.decode(value,{stream:true});
-      const lines=buf.split('\n');buf=lines.pop();
-      for(const line of lines){
-        if(!line.startsWith('data:'))continue;
-        const ev=JSON.parse(line.slice(5).trim());
-        if(ev.type==='progress'){fill.style.width=(ev.pct*100)+'%';msg.textContent=ev.msg;const sd=document.createElement('div');sd.className='stream-step';sd.textContent='✓ '+ev.msg;steps.appendChild(sd)}
-        else if(ev.type==='result'){result=ev.data;fill.style.width='100%'}
-        else if(ev.type==='error'){overlay.classList.remove('show');notify('Error: '+ev.message,'err');btn.disabled=false;return}
-      }
-    }
-    overlay.classList.remove('show');
-    if(result){ lastMedResult=result; renderMedicineResult(result); }
-  }catch(e){
-    overlay.classList.remove('show');
-    notify('Connection error: '+e.message,'err');
-  }
-  btn.disabled=false;
-}
-
-function renderMedicineResult(r){
-  const conf=(r.confidence*100).toFixed(2),isInt=r.is_interaction;
-  const bcls=isInt?(r.confidence>.75?'badge-danger':'badge-warn'):'badge-safe';
-  const btxt=isInt?(r.confidence>.75?'⚠ High Risk':'◎ Possible'):'✓ No Interaction';
-  const nameA=getDrugLabel(r.drug_a_id)||r.drug_a_name||r.drug_a_id;
-  const nameB=getDrugLabel(r.drug_b_id)||r.drug_b_name||r.drug_b_id;
-  // Show tablet names in metrics
-  const tabA=medResolvedA?.tabletName||nameA;
-  const tabB=medResolvedB?.tabletName||nameB;
-  document.getElementById('med-predict-metrics').innerHTML=`
-    <div class="metric ${isInt?'danger':'safe'}"><div class="metric-label">Status</div><div class="metric-value">${isInt?'Interaction':'Safe ✓'}</div></div>
-    <div class="metric">
-      <div class="metric-label">Medicine A</div>
-      <div class="metric-value" style="font-size:.85rem;line-height:1.2">${tabA}</div>
-      <div class="metric-sub">${nameA} · ${r.drug_a_id}</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Medicine B</div>
-      <div class="metric-value" style="font-size:.85rem;line-height:1.2">${tabB}</div>
-      <div class="metric-sub">${nameB} · ${r.drug_b_id}</div>
-    </div>
-    <div class="metric"><div class="metric-label">Confidence</div><div class="metric-value">${conf}%</div></div>
-    <div class="metric"><div class="metric-label">Mode</div><div class="metric-value" style="font-size:.82rem">${r.embed_mode}</div></div>`;
-  document.getElementById('med-result-main-card').className=`card result-card ${isInt?'danger-card':'safe-card'}`;
-  document.getElementById('med-result-main-card').innerHTML=`
-    <span class="card-label">Predicted Interaction</span>
-    <span class="badge ${bcls}">${btxt}</span>
-    <div class="result-title">${r.top_prediction}</div>
-    <div class="result-conf">Confidence: <span>${conf}%</span></div>
-    <div class="clinical-note">🔬 <strong>Clinical note:</strong> ${r.description}</div>
-    <div class="disclaimer">⚠ Research use only. Consult a qualified pharmacist or physician.</div>`;
-  document.getElementById('med-prob-bars').innerHTML=r.top_k.map(([cls,p],i)=>{
-    const pct=(p*100).toFixed(2);
-    return `<div class="prob-row"><div class="prob-label-row"><span class="prob-name" title="${cls}">${cls.length>42?cls.slice(0,41)+'…':cls}</span><span class="prob-pct">${pct}%</span></div><div class="prob-track"><div class="prob-fill ${i===0?'top':''}" style="width:${Math.min(parseFloat(pct),100)}%"></div></div></div>`;
-  }).join('');
-  document.getElementById('med-predict-result').style.display='block';
-  document.getElementById('med-predict-result').scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-function exportMedicinePDF(){
-  if(!lastMedResult) return;
-  const r=lastMedResult;
-  const tabA=medResolvedA?.tabletName||r.drug_a_id;
-  const tabB=medResolvedB?.tabletName||r.drug_b_id;
-  const conf=(r.confidence*100).toFixed(2),date=new Date().toLocaleString();
-  const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><title>DDI Medicine Report</title>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700&family=Plus+Jakarta+Sans:wght@400;600&family=Fira+Code&display=swap" rel="stylesheet"/>
-  <style>body{font-family:'Plus Jakarta Sans',sans-serif;max-width:700px;margin:44px auto;color:#18181B;line-height:1.65;background:#FDFCFA}
-  h1{font-family:'Lora',serif;font-size:1.9rem;font-weight:700;margin-bottom:.3rem}
-  .meta{font:0.7rem 'Fira Code',monospace;color:#A1A1AA;margin-bottom:2rem}
-  .sec{margin-bottom:1.5rem}.sec h2{font-family:'Fira Code',monospace;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:#0A7C71;border-bottom:1px solid rgba(0,0,0,.08);padding-bottom:.3rem;margin-bottom:.8rem}
-  .badge{display:inline-block;padding:.2rem .8rem;border-radius:999px;font-family:'Fira Code',monospace;font-size:.62rem;font-weight:600}
-  .safe{background:rgba(10,124,113,.1);color:#0A7C71;border:1px solid rgba(10,124,113,.3)}
-  .danger{background:rgba(197,24,59,.1);color:#C5183B;border:1px solid rgba(197,24,59,.3)}
-  .warn{background:#FEF3C7;color:#92580A;border:1px solid #FBD070}
-  .note{background:rgba(10,124,113,.06);border:1px solid rgba(10,124,113,.3);border-radius:10px;padding:.8rem 1rem;font-size:.82rem;color:#0A7C71;margin:.85rem 0}
-  .disc{background:#FEF3C7;border:1px solid #FBD070;border-radius:10px;padding:.6rem .9rem;font-size:.75rem;color:#92580A;margin-top:.6rem}
-  table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:.5rem}
-  th{padding:.5rem .75rem;text-align:left;background:rgba(0,0,0,.03);font-family:'Fira Code',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:#0A7C71}
-  td{padding:.5rem .75rem;border-bottom:1px solid rgba(0,0,0,.05)}
-  @media print{body{margin:20px}}</style></head><body>
-  <h1>DDI Medicine Interaction Report</h1>
-  <div class="meta">Generated ${date} · R-GCN · ${r.embed_mode}</div>
-  <div class="sec"><h2>Medicine Pair</h2>
-    <table>
-      <tr><th>Medicine A (entered)</th><td>${tabA}</td></tr>
-      <tr><th>Active Ingredient A</th><td>${getDrugLabel(r.drug_a_id)||r.drug_a_id} (${r.drug_a_id})</td></tr>
-      <tr><th>Medicine B (entered)</th><td>${tabB}</td></tr>
-      <tr><th>Active Ingredient B</th><td>${getDrugLabel(r.drug_b_id)||r.drug_b_id} (${r.drug_b_id})</td></tr>
-    </table></div>
-  <div class="sec"><h2>Prediction</h2>
-    <span class="badge ${r.is_interaction?(r.confidence>.75?'danger':'warn'):'safe'}">${r.is_interaction?(r.confidence>.75?'⚠ High Risk':'◎ Possible'):'✓ No Interaction'}</span>
-    <p style="margin-top:.75rem;font-size:1.1rem;font-family:'Lora',serif"><strong>${r.top_prediction}</strong></p>
-    <p style="font-family:'Fira Code',monospace;font-size:.7rem;color:#0A7C71;margin-top:.3rem">Confidence: ${conf}%</p>
-    <div class="note">🔬 <strong>Clinical note:</strong> ${r.description}</div>
-    <div class="disc">⚠ Research purposes only. Always consult a pharmacist or physician.</div></div>
-  <div class="sec"><h2>Top ${r.top_k.length} Predictions</h2>
-    <table><thead><tr><th>#</th><th>Interaction Type</th><th>Probability</th></tr></thead>
-    <tbody>${r.top_k.map(([c,p],i)=>`<tr><td>${i+1}</td><td>${c}</td><td>${(p*100).toFixed(3)}%</td></tr>`).join('')}</tbody></table></div>
-  <script>window.onload=()=>window.print()<\/script></body></html>`);
-  w.document.close();
-}
-function exportMedicineJSON(){
-  if(!lastMedResult) return;
-  const payload = {
-    tabletA: medResolvedA?.tabletName,
-    tabletB: medResolvedB?.tabletName,
-    result: lastMedResult
-  };
-  dlText('ddi_medicine_result.json', JSON.stringify(payload,null,2), 'application/json');
-}
-
-// ════════════════════════════════
 // NOTIFICATIONS
 // ════════════════════════════════
 function notify(msg,type='ok'){
@@ -2104,7 +1679,6 @@ function notify(msg,type='ok'){
 // INIT
 // ════════════════════════════════
 window.addEventListener('DOMContentLoaded',()=>{
-  updateAuthUI();
   fetchAllDrugs();
 });
 </script>

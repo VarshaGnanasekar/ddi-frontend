@@ -239,7 +239,7 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1rem 0.7
   border-radius:14px;
   z-index:99999;
   box-shadow:0 12px 40px rgba(0,0,0,0.22),0 2px 8px rgba(0,0,0,0.10);
-  overflow:hidden;max-height:280px;
+  overflow:hidden;
   flex-direction:column;
 }
 .drug-panel.open{display:flex}
@@ -502,14 +502,6 @@ main{position:relative;z-index:2;max-width:1140px;margin:0 auto;padding:1rem 0.7
   playsinline
   poster="https://www.shutterstock.com/shutterstock/videos/3911150453/thumb/1.jpg?ip=x480"
 >
-  <!--
-    Add your video source here, for example:
-    <source src="your-video.mp4" type="video/mp4">
-
-    Until you add a local video, the poster image is shown as a fallback.
-    You can also use a free stock video URL, e.g.:
-    <source src="https://cdn.coverr.co/videos/coverr-medical-laboratory-2888/1080p.mp4" type="video/mp4">
-  -->
   <source src="https://www.shutterstock.com/shutterstock/videos/3934105123/preview/stock-footage-blue-green-pill-capsules-isolated-analgesic-pile-painkiller-drugs-sedative-pills-group-medicine.webm" type="video/webm">
 </video>
 
@@ -1081,7 +1073,9 @@ class DrugSelector{
     this.listEl=document.createElement('div');this.listEl.className='drug-list';
     this.cntEl=document.createElement('div');this.cntEl.className='drug-count';
     this.panelEl.appendChild(sb);this.panelEl.appendChild(this.listEl);this.panelEl.appendChild(this.cntEl);
-    wrap.appendChild(lbl);wrap.appendChild(this.ctrlEl);wrap.appendChild(this.arrEl);wrap.appendChild(this.panelEl);
+    // Attach panel to body so fixed positioning is never clipped by parent stacking contexts
+    document.body.appendChild(this.panelEl);
+    wrap.appendChild(lbl);wrap.appendChild(this.ctrlEl);wrap.appendChild(this.arrEl);
     c.appendChild(wrap);this.el=wrap;
     this._fill('');
     this.ctrlEl.addEventListener('click',()=>this.toggle());
@@ -1138,27 +1132,48 @@ class DrugSelector{
   toggle(){this.open?this.close():this.openPanel()}
   openPanel(){
     this.open=true;this.panelEl.classList.add('open');this.ctrlEl.classList.add('open');this.arrEl.classList.add('open');
-    // Position using fixed coords so it always appears on top
+    // getBoundingClientRect gives viewport coords — perfect for position:fixed
     const rc=this.ctrlEl.getBoundingClientRect();
-    const panelW=Math.max(rc.width,260);
+    const panelW=Math.max(rc.width,280);
     this.panelEl.style.width=panelW+'px';
-    this.panelEl.style.left=rc.left+'px';
-    // Flip up if not enough room below
+    // Align left edge, but don't overflow right edge of viewport
+    let left=rc.left;
+    if(left+panelW>window.innerWidth-8) left=window.innerWidth-panelW-8;
+    this.panelEl.style.left=Math.max(4,left)+'px';
+    // Show below control; flip above if not enough space
     const spaceBelow=window.innerHeight-rc.bottom-8;
-    if(spaceBelow<200){
+    if(spaceBelow<220&&rc.top>220){
       this.panelEl.style.top='';
       this.panelEl.style.bottom=(window.innerHeight-rc.top+4)+'px';
-    } else {
+      this.panelEl.style.maxHeight=Math.min(280,rc.top-8)+'px';
+    }else{
       this.panelEl.style.bottom='';
       this.panelEl.style.top=(rc.bottom+4)+'px';
+      this.panelEl.style.maxHeight=Math.min(280,spaceBelow)+'px';
     }
     this.searchEl.value='';this._fill('');
     setTimeout(()=>this.searchEl.focus(),60);
     document.addEventListener('click',this._clickout);
   }
   close(){
-    this.open=false;this.panelEl.classList.remove('open');this.ctrlEl.classList.remove('open');this.arrEl.classList.remove('open');
+    this.open=false;
+    this.panelEl.classList.remove('open');
+    this.ctrlEl.classList.remove('open');this.arrEl.classList.remove('open');
     document.removeEventListener('click',this._clickout);
+  }
+  _reposition(){
+    if(!this.open)return;
+    const rc=this.ctrlEl.getBoundingClientRect();
+    const panelW=parseInt(this.panelEl.style.width)||280;
+    let left=rc.left;
+    if(left+panelW>window.innerWidth-8) left=window.innerWidth-panelW-8;
+    this.panelEl.style.left=Math.max(4,left)+'px';
+    const spaceBelow=window.innerHeight-rc.bottom-8;
+    if(spaceBelow<220&&rc.top>220){
+      this.panelEl.style.top='';this.panelEl.style.bottom=(window.innerHeight-rc.top+4)+'px';
+    }else{
+      this.panelEl.style.bottom='';this.panelEl.style.top=(rc.bottom+4)+'px';
+    }
   }
   _onOut(e){if(!this.el.contains(e.target))this.close()}
 }
